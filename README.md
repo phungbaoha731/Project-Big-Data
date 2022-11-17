@@ -5,7 +5,10 @@
 B1. Clone repo về.<br>
 B2. Nếu chưa có cụm hadoop spark. Cài đặt docker và chạy cụm hadoop theo link sau <a>https://github.com/s1mplecc/spark-hadoop-docker</a> <br>
 B3. ``` cd whoscored-project ``` <br>
-B4. đóng gói ra file jar để chạy spark job: ```mvn package1```
+B4. đóng gói ra file jar để chạy spark job: 
+```
+mvn package
+```
 B5. đưa file jar được đóng gói lên cụm chạy spark: example: <br>
 ```
 docker cp ../Project-Big-Data/whoscored-project/target/whoscored-project-1.0-SNAPSHOT-jar-with-dependencies.jar spark-hadoop-docker_spark-worker-2_1:/opt/bitnami/spark

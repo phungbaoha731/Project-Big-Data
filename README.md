@@ -10,14 +10,13 @@ B5. đưa file jar được đóng gói lên cụm chạy spark: example: <br>
 ```
 docker cp ../Project-Big-Data/whoscored-project/target/whoscored-project-1.0-SNAPSHOT-jar-with-dependencies.jar spark-hadoop-docker_spark-worker-2_1:/opt/bitnami/spark
 ```
-<br>
-B6. Đưa file Data.csv lên các máy node chạy job: <br>
+B6. Đưa file Data.csv lên các máy node chạy job:
 ```   
-docker cp /home/nguyenlt/Downloads/Data.csv spark-hadoop-docker_spark-worker-2_1:/
+ docker cp {pathToData}/Data.csv spark-hadoop-docker_spark-worker-2_1:/ 
 ```
-<br>
+
 B7: submit spark-job:
-<br>
+
 ```
-./bin/spark-submit --master yarn --deploy-mode client --class bk.edu.first.FirstPush whoscored-project-1.0-SNAPSHOT-jar-with-dependencies.jar
+ ./bin/spark-submit --master yarn --deploy-mode client --class bk.edu.first.FirstPush whoscored-project-1.0-SNAPSHOT-jar-with-dependencies.jar 
 ```

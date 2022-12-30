@@ -24,7 +24,7 @@ def scrapTournament(url):
   today = pd.to_datetime('now')
   countLinks = 0
   for i in matches['Date']:
-    if today - i < datetime.timedelta(days = schedule_time):
+    if today.strftime('%Y-%m-%d') != i.strftime('%Y-%m-%d') and today - i < datetime.timedelta(days = schedule_time):
       countLinks+=1
   if countLinks == 0: 
     return

@@ -4,12 +4,12 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlencode
 
 urlId=-1
-schedule_time = 4    # Số ngày trước để lấy data
+schedule_time = 4
 
 def scrapTournament(url):
   params = {'api_key': 'ec2530e4965b509b02935dc29ca764d4', 'url': url}
-  data = requests.get('http://api.scraperapi.com/', params=urlencode(params))  # Fake ip
-  # data = requests.get(url)      # K fake ip
+  data = requests.get('http://api.scraperapi.com/', params=urlencode(params))
+  # data = requests.get(url)
   soup = BeautifulSoup(data.text, 'html.parser')
   matches = pd.read_html(data.text)[0]
   
@@ -17,19 +17,19 @@ def scrapTournament(url):
   matches.drop(indexDrop, inplace=True)
   indexDrop = matches[matches['Score'] ==  'Score'].index
   matches.drop(indexDrop, inplace=True)
+  if matches.count(axis=0).count() < 15:
+    matches.insert(0, "", "")
 
-  # Lấy số lượng trận đấu cần crawl
   import datetime
   matches['Date'] = pd.to_datetime(matches['Date'], format='%Y-%m-%d')
   today = pd.to_datetime('now')
   countLinks = 0
   for i in matches['Date']:
-    if today - i < datetime.timedelta(days = schedule_time):
+    if today.strftime('%Y-%m-%d') != i.strftime('%Y-%m-%d') and today - i < datetime.timedelta(days = schedule_time):
       countLinks+=1
   if countLinks == 0: 
     return
   
-  # Lấy số lượng link các trận 
   table = soup.find_all("table")[0]
   links = table.find_all("a")
   matchReports = []
@@ -42,7 +42,9 @@ def scrapTournament(url):
   matchReportLinks = matchReportLinks[urlId+1:]
   print(len(matchReportLinks))
 
-  # Lấy data từng trận đấu
+  matches = matches[len(matches)-len(matchReportLinks):]
+  matchIDs = []
+
   for url in matchReportLinks:
     urlId+=1
     params = {'api_key': 'ec2530e4965b509b02935dc29ca764d4', 'url': url}
@@ -50,6 +52,7 @@ def scrapTournament(url):
     # data = requests.get(url)
     soup = BeautifulSoup(data.text, 'html.parser')
     matchID = url.split("/")[-2]
+    matchIDs.append(matchID)
     
     try:
       dataPD = pd.read_html(data.text)
@@ -63,7 +66,7 @@ def scrapTournament(url):
     extraPD = 20 - len(dataPD)
     print(tourName, matchID, urlId)
 
-    # shots
+
     shots = dataPD[extraPD-3]
     shots.insert(0 ,"Match ID", matchID, True)
     shots.insert(0 ,"Tournament", tourName, True)
@@ -183,8 +186,6 @@ def scrapTournament(url):
     gkStats.insert(0 ,"Match ID", matchID, True)
     gkStats.insert(0 ,"Tournament", tourName, True)
 
-
-    # Overview
     stats = soup.select(".score")
     scores = []
     for score in stats:
@@ -226,14 +227,19 @@ def scrapTournament(url):
     extraStats = pd.DataFrame(dataframe)
     teamStats = pd.concat([teamStats, extraStats], axis=1)
 
-    # Read to file
     all = [shots, playerStats, passingStats, passTypeStats, defensiveStats, possessionStats, miscellaneousStats, gkStats, teamStats]
-    index=1
+    filenames = ['shots', 'playerOverview', 'playerPassing', 'playerPassType', 'playerDefensive',
+                 'playerPossession', 'playerMiscellaneous','gkOverview', 'teamOverview']
+    index=0
     for stat in all:
       df = pd.DataFrame(stat)
-      df.to_csv("stat_{stat}-{today}.csv".format(stat=index, today = datetime.datetime.now().strftime('%Y-%m-%d')), index=False, header=False, mode="a")
+      # df.to_csv("stat_{stat}-{today}.csv".format(stat=index, today = datetime.datetime.now().strftime('%Y-%m-%d')), index=False, header=False, mode="a")
+      df.to_csv("{stat}-{today}.csv".format(stat=filenames[index], today = datetime.datetime.now().strftime('%Y-%m-%d')), index=False, header=False, mode="a")
       index+=1
     print("Read to csv file completed")
+  
+  matches.insert(0, 'Match ID', matchIDs, True)
+  matches.to_csv("result_matches123.csv", index=False, header=False, mode="a")
         
 def schedule_scrap(urls):
   global urlId

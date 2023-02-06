@@ -2,7 +2,6 @@ package bk.edu.etl;
 
 import bk.edu.conf.ConfigName;
 import bk.edu.utils.SparkUtil;
-import bk.edu.utils.TimeUtil;
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -11,15 +10,13 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
-import org.apache.spark.api.java.function.Function;
-import scala.Function1;
 import scala.Serializable;
 
 import static org.apache.spark.sql.functions.*;
-public class ETLData implements Serializable {
+public class ETLDataGkOverview implements Serializable {
     protected static SparkUtil sparkUtil;
 
-    public ETLData() {
+    public ETLDataGkOverview() {
         sparkUtil = new SparkUtil("who-scored", "save to hdfs", "yarn");
     }
 
@@ -361,7 +358,7 @@ public class ETLData implements Serializable {
     }
 
     public static void main(String[] args){
-        ETLData etl = new ETLData();
+        ETLDataGkOverview etl = new ETLDataGkOverview();
         Dataset<Row> gkOverview = etl.gkOverView();
         etl.convertMaxGkOverview(gkOverview);
     }

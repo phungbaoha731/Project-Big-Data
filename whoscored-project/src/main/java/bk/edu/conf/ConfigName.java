@@ -22,4 +22,14 @@ public class ConfigName {
     public static final String FORMAT_TIME = "dd-mm-yyyy";
     
     public static final String RESULT_MATCHES = "/user/resultMatches/day";
+
+    public static final String[] ES_HOST = {"localhost"};
+
+    public static final int ES_PORT = 9200;
+
+    public static final String ES_USER = "";
+
+    public static final String ES_PASSWORD = "";
+
+    public static final String GK_MAX_LOG_INDEX = "max_gk_overview";
 }

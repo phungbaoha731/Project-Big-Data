@@ -28,6 +28,7 @@ public class SparkUtil implements Serializable {
                 .config("spark.speculation", "true")
                 .config("spark.sql.parquet.binaryAsString", "true")
                 .config("spark.hadoop.validateOutputSpecs", "false")
+                .config("spark.driver.memory", "1.5g")
                 .config("spark.speculation","false")    // đè hết config set khi chạy
                 .config("spark.yarn.access.hadoopFileSystems","/data/raw/day/")
                 .getOrCreate();

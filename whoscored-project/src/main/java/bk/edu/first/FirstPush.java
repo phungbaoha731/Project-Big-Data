@@ -22,7 +22,7 @@ public class FirstPush implements Serializable {
                 .csv("file:/inputfile/gkOverview.csv");
         df.printSchema();
         df.show(3);
-        df.write().parquet(ConfigName.GK_OVERVIEW + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        df.write().mode("overwrite").parquet(ConfigName.GK_OVERVIEW + "/04-05-2023");
 
         df = sparkUtil.getSparkSession().read()
                 .option("header", true)
@@ -30,7 +30,7 @@ public class FirstPush implements Serializable {
                 .csv("file:/inputfile/playerDefensive.csv");
         df.printSchema();
         df.show(3);
-        df.write().parquet(ConfigName.PLAYER_DEFENSIVE + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        df.write().mode("overwrite").parquet(ConfigName.PLAYER_DEFENSIVE + "/04-05-2023");
 
         df = sparkUtil.getSparkSession().read()
                 .option("header", true)
@@ -38,7 +38,7 @@ public class FirstPush implements Serializable {
                 .csv("file:/inputfile/playerMiscellaneous.csv");
         df.printSchema();
         df.show(3);
-        df.write().parquet(ConfigName.PLAYER_MISCELLANEOUS + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        df.write().mode("overwrite").parquet(ConfigName.PLAYER_MISCELLANEOUS + "/04-05-2023");
 
         df = sparkUtil.getSparkSession().read()
                 .option("header", true)
@@ -46,14 +46,14 @@ public class FirstPush implements Serializable {
                 .csv("file:/inputfile/playerOverview.csv");
         df.printSchema();
         df.show(3);
-        df.write().parquet(ConfigName.PLAYER_OVERVIEW + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        df.write().mode("overwrite").parquet(ConfigName.PLAYER_OVERVIEW + "/04-05-2023");
         df = sparkUtil.getSparkSession().read()
                 .option("header", true)
                 .option("inferSchema", true)
                 .csv("file:/inputfile/playerPassing.csv");
         df.printSchema();
         df.show(3);
-        df.write().parquet(ConfigName.PLAYER_PASSING + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        df.write().mode("overwrite").parquet(ConfigName.PLAYER_PASSING + "/04-05-2023");
 
         df = sparkUtil.getSparkSession().read()
                 .option("header", true)
@@ -61,7 +61,7 @@ public class FirstPush implements Serializable {
                 .csv("file:/inputfile/playerPassType.csv");
         df.printSchema();
         df.show(3);
-        df.write().parquet(ConfigName.PLAYER_PASS_TYPE+ "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        df.write().mode("overwrite").parquet(ConfigName.PLAYER_PASS_TYPE+ "/04-05-2023");
 
         df = sparkUtil.getSparkSession().read()
                 .option("header", true)
@@ -69,7 +69,7 @@ public class FirstPush implements Serializable {
                 .csv("file:/inputfile/playerPossession.csv");
         df.printSchema();
         df.show(3);
-        df.write().parquet(ConfigName.PLAYER_POSSESSION + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        df.write().mode("overwrite").parquet(ConfigName.PLAYER_POSSESSION + "/04-05-2023");
 
         df = sparkUtil.getSparkSession().read()
                 .option("header", true)
@@ -77,7 +77,7 @@ public class FirstPush implements Serializable {
                 .csv("file:/inputfile/shots.csv");
         df.printSchema();
         df.show(3);
-        df.write().parquet(ConfigName.SHOT + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        df.write().mode("overwrite").parquet(ConfigName.SHOT + "/04-05-2023");
 
         df = sparkUtil.getSparkSession().read()
                 .option("header", true)
@@ -85,15 +85,16 @@ public class FirstPush implements Serializable {
                 .csv("file:/inputfile/teamOverview.csv");
         df.printSchema();
         df.show(3);
-        df.write().parquet(ConfigName.TEAM_OVERVIEW + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
-        
+        df.write().mode("overwrite").parquet(ConfigName.TEAM_OVERVIEW + "/04-05-2023");
+
+
         df = sparkUtil.getSparkSession().read()
                 .option("header", true)
                 .option("inferSchema", true)
                 .csv("file:/inputfile/result_matches.csv");
         df.printSchema();
         df.show(3);
-        df.write().parquet(ConfigName.RESULT_MATCHES + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        df.write().mode("overwrite").parquet(ConfigName.RESULT_MATCHES + "/04-05-2023");
 
 
     }

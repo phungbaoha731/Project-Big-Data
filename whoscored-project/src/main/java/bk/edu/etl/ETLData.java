@@ -3,7 +3,7 @@ package bk.edu.etl;
 import bk.edu.conf.ConfigName;
 import bk.edu.utils.SparkUtil;
 import bk.edu.utils.TimeUtil;
-import org.apache.spark.internal.config.R;
+import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -11,13 +11,13 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
+import org.apache.spark.api.java.function.Function;
 import scala.Function1;
-
-import java.io.Serializable;
+import scala.Serializable;
 
 import static org.apache.spark.sql.functions.*;
 public class ETLData implements Serializable {
-    private static SparkUtil sparkUtil;
+    protected static SparkUtil sparkUtil;
 
     public ETLData() {
         sparkUtil = new SparkUtil("who-scored", "save to hdfs", "yarn");
@@ -196,20 +196,6 @@ public class ETLData implements Serializable {
                         equalTo(maxValueGroupBy.col("Match_ID2")), "inner")
                 .drop("Match_ID2").distinct();
 
-        maxValueDf = df.select("Match_ID","Player", "Goal_Kicks_Launch%");
-        maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Goal_Kicks_Launch%").as("max_Goal_Kicks_Launch%"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Goal_Kicks_Launch%").equalTo(maxValueColumn.col("max_Goal_Kicks_Launch%"))
-                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Goal_Kicks_Launch%").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Goal_Kicks_Launch%").agg(collect_list("Player").as("Player_max_Goal_Kicks_Launch%"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").
-                        equalTo(maxValueGroupBy.col("Match_ID2")), "inner")
-                .drop("Match_ID2").distinct();
-
         maxValueDf = df.select("Match_ID","Player", "Goal_Kicks_AvgLen");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
                 .agg(max("Goal_Kicks_AvgLen").as("max_Goal_Kicks_AvgLen"))
@@ -295,7 +281,7 @@ public class ETLData implements Serializable {
                 .drop("Match_ID2").distinct();
 
 
-        finalDf.show();
+        //finalDf.show();
         finalDf.printSchema();
 
         return finalDf;
@@ -304,74 +290,73 @@ public class ETLData implements Serializable {
     public void convertMaxGkOverview(Dataset<Row> df){
         StructType structChild = DataTypes.createStructType(
                 new StructField[] {
-                        DataTypes.createStructField("Player", DataTypes.createArrayType(DataTypes.StringType), false),
-                        DataTypes.createStructField("score", DataTypes.IntegerType, false)
+                        DataTypes.createStructField("Player", DataTypes.createArrayType(DataTypes.StringType), true),
+                        DataTypes.createStructField("score", DataTypes.IntegerType, true)
                 }
         );
         StructType structDoubleChild = DataTypes.createStructType(
                 new StructField[] {
-                        DataTypes.createStructField("Player", DataTypes.createArrayType(DataTypes.StringType), false),
-                        DataTypes.createStructField("score", DataTypes.DoubleType, false)
+                        DataTypes.createStructField("Player", DataTypes.createArrayType(DataTypes.StringType), true),
+                        DataTypes.createStructField("score", DataTypes.DoubleType, true)
                 }
         );
         StructType struct = DataTypes.createStructType(
                 new StructField[] {
-                        DataTypes.createStructField("Match_ID", DataTypes.StringType, false),
-                        DataTypes.createStructField("Tournament", DataTypes.StringType, false),
-                        DataTypes.createStructField("Date", DataTypes.StringType, false),
-                        DataTypes.createStructField("Home", DataTypes.StringType, false),
-                        DataTypes.createStructField("Away", DataTypes.StringType, false),
-                        DataTypes.createStructField("Score", DataTypes.StringType, false),
-                        DataTypes.createStructField("max_Shot_Stopping_SoTA",structChild , false),
-                        DataTypes.createStructField("max_Shot_Stopping_GA",structChild , false),
-                        DataTypes.createStructField("max_Shot_Stopping_Saves",structChild , false),
-                        DataTypes.createStructField("max_Shot_Stopping_Save%",structDoubleChild , false),
-                        DataTypes.createStructField("max_Shot_Stopping_PSxG",structDoubleChild , false),
-                        DataTypes.createStructField("max_Launched_Cmp",structChild , false),
-                        DataTypes.createStructField("max_Launched_Att",structChild , false),
-                        DataTypes.createStructField("max_Launched_Cmp%",structDoubleChild , false),
-                        DataTypes.createStructField("max_Passes_Att",structChild , false),
-                        DataTypes.createStructField("max_Passes_Thr",structChild , false),
-                        DataTypes.createStructField("max_Passes_Launch%",structDoubleChild , false),
-                        DataTypes.createStructField("max_Passes_AvgLen",structDoubleChild , false),
-                        DataTypes.createStructField("max_Goal_Kicks_Att",structChild , false),
-                        DataTypes.createStructField("max_Goal_Kicks_Launch%",structDoubleChild , false),
-                        DataTypes.createStructField("max_Goal_Kicks_AvgLen",structDoubleChild , false),
-                        DataTypes.createStructField("max_Crosses_Opp",structChild , false),
-                        DataTypes.createStructField("max_Crosses_Stp",structChild , false),
-                        DataTypes.createStructField("max_Crosses_Stp%",structDoubleChild , false),
-                        DataTypes.createStructField("max_Sweeper_#OPA",structChild , false),
-                        DataTypes.createStructField("max_Sweeper_AvgDist",structDoubleChild , false)
+                        DataTypes.createStructField("Match_ID", DataTypes.StringType, true),
+                        DataTypes.createStructField("Tournament", DataTypes.StringType, true),
+                        DataTypes.createStructField("Date", DataTypes.StringType, true),
+                        DataTypes.createStructField("Home", DataTypes.StringType, true),
+                        DataTypes.createStructField("Away", DataTypes.StringType, true),
+                        DataTypes.createStructField("Score", DataTypes.StringType, true),
+                        DataTypes.createStructField("max_Shot_Stopping_SoTA",structChild , true),
+                        DataTypes.createStructField("max_Shot_Stopping_GA",structChild , true),
+                        DataTypes.createStructField("max_Shot_Stopping_Saves",structDoubleChild , true),
+                        DataTypes.createStructField("max_Shot_Stopping_Save%",structDoubleChild , true),
+                        DataTypes.createStructField("max_Shot_Stopping_PSxG",structDoubleChild , true),
+                        DataTypes.createStructField("max_Launched_Cmp",structChild , true),
+                        DataTypes.createStructField("max_Launched_Att",structDoubleChild , true),
+                        DataTypes.createStructField("max_Launched_Cmp%",structDoubleChild , true),
+                        DataTypes.createStructField("max_Passes_Att",structChild , true),
+                        DataTypes.createStructField("max_Passes_Thr",structDoubleChild , true),
+                        DataTypes.createStructField("max_Passes_Launch%",structDoubleChild , true),
+                        DataTypes.createStructField("max_Passes_AvgLen",structDoubleChild , true),
+                        DataTypes.createStructField("max_Goal_Kicks_Att",structDoubleChild , true),
+                        DataTypes.createStructField("max_Goal_Kicks_AvgLen",structDoubleChild , true),
+                        DataTypes.createStructField("max_Crosses_Opp",structChild , true),
+                        DataTypes.createStructField("max_Crosses_Stp",structDoubleChild , true),
+                        DataTypes.createStructField("max_Crosses_Stp%",structDoubleChild , true),
+                        DataTypes.createStructField("max_Sweeper_#OPA",structDoubleChild , true),
+                        DataTypes.createStructField("max_Sweeper_AvgDist",structDoubleChild , true)
                 }
         );
-        Dataset<Row> dfFinal = df.map(new Function1<Row, Row>() {
+        Dataset<Row> dfFinal = df.map(new MapFunction<Row, Row>() {
             @Override
-            public Row apply(Row v1) {
+            public Row call(Row v1) throws Exception {
                 return RowFactory.create(v1.getString(0), v1.getString(1),
                         v1.getString(2), v1.getString(3), v1.getString(4),
                         v1.getString(5),
                         RowFactory.create(v1.getSeq(7), v1.getInt(6)),
                         RowFactory.create(v1.getSeq(9), v1.getInt(8)),
-                        RowFactory.create(v1.getSeq(11), v1.getInt(10)),
+                        RowFactory.create(v1.getSeq(11), v1.getDouble(10)),
                         RowFactory.create(v1.getSeq(13), v1.getDouble(12)),
                         RowFactory.create(v1.getSeq(15), v1.getDouble(14)),
                         RowFactory.create(v1.getSeq(17), v1.getInt(16)),
-                        RowFactory.create(v1.getSeq(19), v1.getInt(18)),
+                        RowFactory.create(v1.getSeq(19), v1.getDouble(18)),
                         RowFactory.create(v1.getSeq(21), v1.getDouble(20)),
                         RowFactory.create(v1.getSeq(23), v1.getInt(22)),
-                        RowFactory.create(v1.getSeq(25), v1.getInt(24)),
+                        RowFactory.create(v1.getSeq(25), v1.getDouble(24)),
                         RowFactory.create(v1.getSeq(27), v1.getDouble(26)),
                         RowFactory.create(v1.getSeq(29), v1.getDouble(28)),
-                        RowFactory.create(v1.getSeq(31), v1.getInt(30)),
+                        RowFactory.create(v1.getSeq(31), v1.getDouble(30)),
                         RowFactory.create(v1.getSeq(33), v1.getDouble(32)),
-                        RowFactory.create(v1.getSeq(35), v1.getDouble(34)),
-                        RowFactory.create(v1.getSeq(37), v1.getInt(36)),
-                        RowFactory.create(v1.getSeq(39), v1.getInt(38)),
+                        RowFactory.create(v1.getSeq(35), v1.getInt(34)),
+                        RowFactory.create(v1.getSeq(37), v1.getDouble(36)),
+                        RowFactory.create(v1.getSeq(39), v1.getDouble(38)),
                         RowFactory.create(v1.getSeq(41), v1.getDouble(40)),
-                        RowFactory.create(v1.getSeq(43), v1.getInt(42)),
-                        RowFactory.create(v1.getSeq(45), v1.getDouble(44)));
+                        RowFactory.create(v1.getSeq(43), v1.getDouble(42)));
             }
         }, RowEncoder.apply(struct));
+
         dfFinal.write().mode("overwrite").parquet("max" + ConfigName.GK_OVERVIEW + "/04-05-2023");
     }
 

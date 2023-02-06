@@ -13,40 +13,120 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    <repositories>
+<repository>
+<id>hadoop</id>
+<url>https://maven.admicro.vn/nexus/content/repositories/hadoop</url>
+</repository>
+<repository>
+<id>hadoop2</id>
+<url>https://maven.admicro.vn/nexus/content/repositories/ml-group</url>
+</repository>
+</repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-common</artifactId>
-            <version>3.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_2.12</artifactId>
-            <version>3.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.12</artifactId>
-            <version>3.2.0</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>log4j</artifactId>
-                    <groupId>log4j</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>2.12.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
-            <scope>provided</scope>
-        </dependency>
+    	<dependency>
+<groupId>org.apache.logging.log4j</groupId>
+<artifactId>log4j-api</artifactId>
+<version>2.17.2</version>
+</dependency>
+<dependency>
+<groupId>org.apache.logging.log4j</groupId>
+<artifactId>log4j-core</artifactId>
+<version>2.17.2</version>
+</dependency>
+<dependency>
+<groupId>org.apache.hadoop</groupId>
+<artifactId>hadoop-common</artifactId>
+<version>3.3.0</version>
+</dependency>
+<dependency>
+<groupId>javax.validation</groupId>
+<artifactId>validation-api</artifactId>
+<version>2.0.1.Final</version>
+</dependency>
+<dependency>
+<groupId>com.fasterxml.jackson.core</groupId>
+<artifactId>jackson-databind</artifactId>
+<version>2.13.1</version>
+</dependency>
+<dependency>
+<groupId>org.jetbrains</groupId>
+<artifactId>annotations</artifactId>
+<version>22.0.0</version>
+<scope>compile</scope>
+</dependency>
+<dependency>
+<groupId>org.json</groupId>
+<artifactId>json</artifactId>
+<version>20190722</version>
+</dependency>
+<dependency>
+<groupId>com.vcc.bigdata.hadoop</groupId>
+<artifactId>userprofile_common</artifactId>
+<version>0.3.10.5</version>
+<exclusions>
+<exclusion>
+<artifactId>ads-common</artifactId>
+<groupId>com.vcc.bigdata</groupId>
+</exclusion>
+<exclusion>
+<artifactId>jdk.tools</artifactId>
+<groupId>jdk.tools</groupId>
+</exclusion>
+<exclusion>
+<artifactId>commons-logging</artifactId>
+<groupId>commons-logging</groupId>
+</exclusion>
+<exclusion>
+<artifactId>commons-collections</artifactId>
+<groupId>commons-collections</groupId>
+</exclusion>
+<exclusion>
+<artifactId>log4j</artifactId>
+<groupId>log4j</groupId>
+</exclusion>
+</exclusions>
+</dependency>
+<dependency>
+<groupId>com.vcc.bigdata</groupId>
+<artifactId>ads-common</artifactId>
+<version>0.0.11.5</version>
+<exclusions>
+<exclusion>
+<artifactId>hadoop-core</artifactId>
+<groupId>org.apache.hadoop</groupId>
+</exclusion>
+</exclusions>
+</dependency>
+<dependency>
+<groupId>org.apache.spark</groupId>
+<artifactId>spark-core_2.12</artifactId>
+<version>3.2.0</version>
+<exclusions>
+<exclusion>
+<artifactId>log4j</artifactId>
+<groupId>log4j</groupId>
+</exclusion>
+</exclusions>
+</dependency>
+<dependency>
+<groupId>org.apache.spark</groupId>
+<artifactId>spark-sql_2.12</artifactId>
+<version>3.2.0</version>
+</dependency>
+<dependency>
+<groupId>org.scala-lang</groupId>
+<artifactId>scala-library</artifactId>
+<version>2.12.2</version>
+</dependency>
+<dependency>
+<groupId>org.projectlombok</groupId>
+<artifactId>lombok</artifactId>
+<version>1.18.24</version>
+<scope>provided</scope>
+</dependency>
+        
     </dependencies>
     <build>
         <plugins>

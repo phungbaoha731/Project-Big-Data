@@ -28,6 +28,7 @@ public class SparkUtil implements Serializable {
                 .config("spark.speculation", "true")
                 .config("spark.sql.parquet.binaryAsString", "true")
                 .config("spark.hadoop.validateOutputSpecs", "false")
+                .config("spark.driver.memory", "1g")
                 .config("spark.speculation","false")    // đè hết config set khi chạy
                 .config("spark.yarn.access.hadoopFileSystems","/data/raw/day/")
                 .getOrCreate();
@@ -48,22 +49,4 @@ public class SparkUtil implements Serializable {
         return fileSystem;
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            if (fileSystem != null) fileSystem.close();
-        } catch (Exception ignored) {
-        }
-
-        try {
-            if (sparkContext != null) sparkContext.close();
-        } catch (Exception ignored) {
-        }
-
-        try {
-            if (sparkSession != null) sparkSession.close();
-        } catch (Exception ignored) {
-        }
-
-    }
 }

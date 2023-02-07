@@ -4,6 +4,7 @@ package bk.edu.storage;
 import bk.edu.conf.ConfigName;
 import bk.edu.etl.ETLDataGkOverview;
 import bk.edu.model.StatsInt;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -118,9 +119,11 @@ public class ElasticStorage implements Serializable{
 
     public static void main(String[] args){
         ElasticStorage es = new ElasticStorage();
-        for(int i = 0; i < 10; i++){
-            es.getBulk().add(new IndexRequest("test").id(i + "ss")
-                    .source(XContentType.JSON, "field", "bulk2" + i));
+        Map<String, Object> map = new HashMap<>();
+        ObjectMapper oMapper = new ObjectMapper();
+        map.put("hello", oMapper.convertValue(new StatsInt(null, 3), Map.class));
+        for(int i = 0; i < 1; i++){
+            es.getBulk().add(new IndexRequest("ggg").id(i + "ll").source(map));
             System.out.println("insert");
             try {
                 boolean a = es.getClient().ping(RequestOptions.DEFAULT);

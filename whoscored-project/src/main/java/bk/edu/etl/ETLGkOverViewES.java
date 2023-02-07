@@ -4,6 +4,7 @@ import bk.edu.conf.ConfigName;
 import bk.edu.model.StatsInt;
 import bk.edu.storage.ElasticStorage;
 import bk.edu.utils.SparkUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.elasticsearch.action.index.IndexRequest;
@@ -91,17 +92,19 @@ public class ETLGkOverViewES implements Serializable {
         int maxCrossedOppAttInt = maxCrossedOppAtt.getInt(1);
         StatsInt statsCrossedOppAtt = new StatsInt(playerCrossedOppAtt, maxCrossedOppAttInt);
 
+        ObjectMapper oMapper = new ObjectMapper();
         Map<String, Object> map = new HashMap<>();
         map.put("Tournament", tournament);
         map.put("Date", date);
         map.put("Home", home);
         map.put("Away", away);
         map.put("Score", score);
-        map.put("ShotStoppingSoTA", statsStoppingSota);
-        map.put("LaunchedCmp", statsLaunchedCmp);
-        map.put("LaunchedAtt", statsLaunchedAtt);
-        map.put("GoalKicksAtt", statsGoalKicksAtt);
-        map.put("CrossesOpp", statsCrossedOppAtt);
+        map.put("ShotStoppingSoTA", oMapper.convertValue(statsStoppingSota, Map.class));
+        map.put("PassesAtt", oMapper.convertValue(statsPassesAtt, Map.class));
+        map.put("LaunchedCmp", oMapper.convertValue(statsLaunchedCmp, Map.class));
+        map.put("LaunchedAtt", oMapper.convertValue(statsLaunchedAtt, Map.class));
+        map.put("GoalKicksAtt", oMapper.convertValue(statsGoalKicksAtt, Map.class));
+        map.put("CrossesOpp", oMapper.convertValue(statsCrossedOppAtt, Map.class));
 
         esStorage.getBulk().add(new IndexRequest()
                 .index(ConfigName.GK_MAX_LOG_INDEX)

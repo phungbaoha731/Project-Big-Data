@@ -12,8 +12,6 @@ import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import scala.Serializable;
 
-import java.io.Serializable;
-
 import static org.apache.spark.sql.functions.*;
 public class ETLplayerOverview implements Serializable {
     private static SparkUtil sparkUtil;
@@ -466,7 +464,7 @@ public class ETLplayerOverview implements Serializable {
     }
 
     public static void main(String[] args){
-        ETLData etl = new ETLplayerOverview();
+        ETLplayerOverview etl = new ETLplayerOverview();
         Dataset<Row> playerOverview = etl.playerOverview();
         // etl.convertMaxGkOverview(gkOverview);
     }

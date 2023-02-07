@@ -23,7 +23,7 @@ public class ConfigName {
     
     public static final String RESULT_MATCHES = "/user/resultMatches/day";
 
-    public static final String[] ES_HOST = {"localhost"};
+    public static final String[] ES_HOST = {"172.25.0.5"};
 
     public static final int ES_PORT = 9200;
 

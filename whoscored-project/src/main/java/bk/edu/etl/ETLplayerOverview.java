@@ -346,35 +346,6 @@ public class ETLplayerOverview implements Serializable {
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 
 
-
-
-
-        maxValueDf = df.select("Match_ID","Player", "Receiving_Rec");
-        maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Receiving_Rec").as("max_Receiving_Rec"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Receiving_Rec").equalTo(maxValueColumn.col("max_Receiving_Rec"))
-                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Receiving_Rec").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Receiving_Rec").agg(collect_list("Player").as("Player_max_Receiving_Rec"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
-
-
-        maxValueDf = df.select("Match_ID","Player", "Receiving_Prog");
-        maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Receiving_Prog").as("max_Receiving_Prog"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Receiving_Prog").equalTo(maxValueColumn.col("max_Receiving_Prog"))
-                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Receiving_Prog").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Receiving_Prog").agg(collect_list("Player").as("Player_max_Receiving_Prog"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
-
-
         finalDf.show();
         finalDf.printSchema();
 

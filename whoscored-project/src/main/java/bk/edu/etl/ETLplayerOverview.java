@@ -438,6 +438,6 @@ public class ETLplayerOverview implements Serializable {
     public static void main(String[] args){
         ETLplayerOverview etl = new ETLplayerOverview();
         Dataset<Row> playerOverview = etl.playerOverview();
-        // etl.convertMaxGkOverview(gkOverview);
+        etl.convertMaxPlayerOverview(playerOverview);
     }
 }

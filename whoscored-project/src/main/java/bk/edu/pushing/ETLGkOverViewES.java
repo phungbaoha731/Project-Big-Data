@@ -31,7 +31,8 @@ public class ETLGkOverViewES implements Serializable {
     }
 
     public void writeToEs(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/max" + ConfigName.GK_OVERVIEW + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/max" + ConfigName.GK_OVERVIEW + "/2023-02-08");
+        df = df.na().fill(0);
         df.printSchema();
         //df.show(10);
         List<Row> listDf = df.collectAsList();
@@ -40,7 +41,11 @@ public class ETLGkOverViewES implements Serializable {
             saveMaxGkOverView(listDf.get(i));
             System.out.println("save " + i);
         }
-        System.out.println("End");
+        listDf.clear();
+
+        df = sparkUtil.getSparkSession().read().parquet("/user/" + ConfigName.GK_OVERVIEW + "/2023-02-08");
+
+        listDf = df.collectAsList();
     }
 
     public void saveMaxGkOverView(Row row){
@@ -109,6 +114,16 @@ public class ETLGkOverViewES implements Serializable {
         esStorage.getBulk().add(new IndexRequest()
                 .index("max_" + ConfigName.GK_LOG_INDEX)
                 .id(MatchId).source(map));
+
+    }
+
+    public void saveGkOverviewRaw(Row row){
+        String tournament = row.getString(0);
+        String matchId = row.getString(1);
+        String playerId = row.getString(2);
+        String player = row.getString(3);
+        String age = row.getString(5);
+
 
     }
 

@@ -1,9 +1,10 @@
-package bk.edu.etl;
+package bk.edu.pushing;
 
 import bk.edu.conf.ConfigName;
 import bk.edu.model.StatsInt;
 import bk.edu.storage.ElasticStorage;
 import bk.edu.utils.SparkUtil;
+import bk.edu.utils.TimeUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -15,7 +16,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +31,7 @@ public class ETLGkOverViewES implements Serializable {
     }
 
     public void writeToEs(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("max" + ConfigName.GK_OVERVIEW + "/04-05-2023");
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/max" + ConfigName.GK_OVERVIEW + TimeUtil.getDate(ConfigName.FORMAT_TIME));
         df.printSchema();
         //df.show(10);
         List<Row> listDf = df.collectAsList();
@@ -107,7 +107,7 @@ public class ETLGkOverViewES implements Serializable {
         map.put("CrossesOpp", oMapper.convertValue(statsCrossedOppAtt, Map.class));
 
         esStorage.getBulk().add(new IndexRequest()
-                .index(ConfigName.GK_MAX_LOG_INDEX)
+                .index("max_" + ConfigName.GK_LOG_INDEX)
                 .id(MatchId).source(map));
 
     }

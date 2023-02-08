@@ -2,6 +2,7 @@ package bk.edu.etl;
 
 import bk.edu.conf.ConfigName;
 import bk.edu.utils.SparkUtil;
+import bk.edu.utils.TimeUtil;
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -21,8 +22,8 @@ public class ETLplayerOverview implements Serializable {
     }
 
     public Dataset<Row> playerOverview(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet(ConfigName.PLAYER_OVERVIEW + "/04-05-2023");
-        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet(ConfigName.RESULT_MATCHES + "/04-05-2023")
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_OVERVIEW + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME))
                 .select("Match_ID", "Date", "Home", "Away", "Score")
                 .withColumnRenamed("Match_ID", "Match_ID2");
 
@@ -431,7 +432,7 @@ public class ETLplayerOverview implements Serializable {
 
             }
         }, RowEncoder.apply(struct));
-        dfFinal.write().mode("overwrite").parquet("max" + ConfigName.PLAYER_OVERVIEW + "/04-05-2023");
+        dfFinal.write().mode("overwrite").parquet("/user/max" +  ConfigName.PLAYER_OVERVIEW + "/04-05-2023");
     }
 
     public static void main(String[] args){

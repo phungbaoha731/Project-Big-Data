@@ -3,7 +3,8 @@ package bk.edu.etl;
 import bk.edu.conf.ConfigName;
 import bk.edu.utils.SparkUtil;
 import bk.edu.utils.TimeUtil;
-import org.apache.spark.internal.config.R;
+import org.apache.hadoop.yarn.util.timeline.TimelineUtils;
+import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -11,21 +12,20 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
-import scala.Function1;
 
 import java.io.Serializable;
 
 import static org.apache.spark.sql.functions.*;
-public class ETLData implements Serializable {
+public class ETLDataPlayerDefensive implements Serializable {
     private static SparkUtil sparkUtil;
 
-    public ETLData() {
+    public ETLDataPlayerDefensive() {
         sparkUtil = new SparkUtil("who-scored", "save to hdfs", "yarn");
     }
 
     public Dataset<Row> playerDefensive(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet(ConfigName.PLAYER_DEFENSIVE + "/04-05-2023");
-        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet(ConfigName.RESULT_MATCHES + "/04-05-2023")
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_DEFENSIVE + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME))
                 .select("Match_ID", "Date", "Home", "Away", "Score")
                 .withColumnRenamed("Match_ID", "Match_ID2");
 
@@ -240,9 +240,9 @@ public class ETLData implements Serializable {
                         DataTypes.createStructField("max_Err",structChild , false),                        
                 }
         );
-        Dataset<Row> dfFinal = df.map(new Function1<Row, Row>() {
+        Dataset<Row> dfFinal = df.map(new MapFunction<Row, Row>() {
             @Override
-            public Row apply(Row v1) {
+            public Row call(Row v1) {
                 return RowFactory.create(v1.getString(0), v1.getString(1),
                         v1.getString(2), v1.getString(3), v1.getString(4),
                         v1.getString(5),
@@ -257,24 +257,14 @@ public class ETLData implements Serializable {
                         RowFactory.create(v1.getSeq(23), v1.getInt(22)),
                         RowFactory.create(v1.getSeq(25), v1.getInt(24)),
                         RowFactory.create(v1.getSeq(27), v1.getInt(26)),
-                        RowFactory.create(v1.getSeq(29), v1.getInt(28)),
-
-
-                        // RowFactory.create(v1.getSeq(31), v1.getInt(30)),
-                        // RowFactory.create(v1.getSeq(33), v1.getDouble(32)),
-                        // RowFactory.create(v1.getSeq(35), v1.getDouble(34)),
-                        // RowFactory.create(v1.getSeq(37), v1.getInt(36)),
-                        // RowFactory.create(v1.getSeq(39), v1.getInt(38)),
-                        // RowFactory.create(v1.getSeq(41), v1.getDouble(40)),
-                        // RowFactory.create(v1.getSeq(43), v1.getInt(42)),
-                        // RowFactory.create(v1.getSeq(45), v1.getDouble(44)));
+                        RowFactory.create(v1.getSeq(29), v1.getInt(28)));
             }
         }, RowEncoder.apply(struct));
-        dfFinal.write().mode("overwrite").parquet("max" + ConfigName.PLAYER_DEFENSIVE + "/04-05-2023");
+        dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.PLAYER_DEFENSIVE + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
     }
 
     public static void main(String[] args){
-        ETLData etl = new ETLData();
+        ETLDataPlayerDefensive etl = new ETLDataPlayerDefensive();
         Dataset<Row> playerDefensive = etl.playerDefensive();
         etl.convertMaxPlayerDefensive(playerDefensive);
     }

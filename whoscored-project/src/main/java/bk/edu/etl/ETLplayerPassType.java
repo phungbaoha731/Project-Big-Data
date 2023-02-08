@@ -313,7 +313,7 @@ public class ETLplayerPassType implements Serializable {
 
             }
         }, RowEncoder.apply(struct));
-        dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.PLAYER_PASS_TYPE + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.PLAYER_PASS_TYPE +"/2023-02-08");
     }
 
     public static void main(String[] args){

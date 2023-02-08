@@ -23,8 +23,8 @@ public class ETLDataPlayerMiscellaneous implements Serializable {
     }
 
     public Dataset<Row> playerMiscellaneous(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_MISCELLANEOUS + "/04-05-2023");
-        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/04-05-2023")
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_MISCELLANEOUS + "/2023-02-08");
+        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/2023-02-08")
                 .select("Match_ID", "Date", "Home", "Away", "Score")
                 .withColumnRenamed("Match_ID", "Match_ID2");
 
@@ -240,7 +240,7 @@ public class ETLDataPlayerMiscellaneous implements Serializable {
                         RowFactory.create(v1.getSeq(29), v1.getInt(28)));
             }
         }, RowEncoder.apply(struct));
-        dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.PLAYER_MISCELLANEOUS + "/04-05-2023");
+        dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.PLAYER_MISCELLANEOUS + "/2023-02-08");
     }
 
     public static void main(String[] args){

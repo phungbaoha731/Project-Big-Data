@@ -22,8 +22,8 @@ public class ETLplayerPassing implements Serializable {
     }
 
     public Dataset<Row> playerPassing(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_PASSING + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
-        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME))
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_PASSING +"/2023-02-08");
+        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES +"/2023-02-08")
                 .select("Match_ID", "Date", "Home", "Away", "Score")
                 .withColumnRenamed("Match_ID", "Match_ID2");
 
@@ -400,7 +400,7 @@ public class ETLplayerPassing implements Serializable {
 
             }
         }, RowEncoder.apply(struct));
-        dfFinal.write().mode("overwrite").parquet("/user/max" +  ConfigName.PLAYER_PASSING + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        dfFinal.write().mode("overwrite").parquet("/user/max" +  ConfigName.PLAYER_PASSING +"/2023-02-08");
     }
 
     public static void main(String[] args){

@@ -111,6 +111,8 @@ public class ETLGkOverViewES implements Serializable {
                 .id(MatchId).source(map));
 
     }
+
+
     public static void main(String[] args){
         ETLGkOverViewES etlGkOverViewES = new ETLGkOverViewES();
         etlGkOverViewES.writeToEs();

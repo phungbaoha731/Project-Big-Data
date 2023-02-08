@@ -22,8 +22,8 @@ public class ETLplayerOverview implements Serializable {
     }
 
     public Dataset<Row> playerOverview(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_OVERVIEW + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME));
-        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/" + TimeUtil.getDate(ConfigName.FORMAT_TIME))
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_OVERVIEW +"/2023-02-08");
+        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES +"/2023-02-08")
                 .select("Match_ID", "Date", "Home", "Away", "Score")
                 .withColumnRenamed("Match_ID", "Match_ID2");
 

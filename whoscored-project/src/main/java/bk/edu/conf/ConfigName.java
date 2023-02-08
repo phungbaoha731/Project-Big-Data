@@ -32,4 +32,8 @@ public class ConfigName {
     public static final String ES_PASSWORD = "";
 
     public static final String GK_LOG_INDEX = "gk_overview";
+
+    public static final String PLAYER_PASSING_INDEX = "player_passing";
+    public static final String PLAYER_PASS_TYPE_INDEX = "player_pass_type";
+    public static final String PLAYER_POSSESSION_INDEX = "player_possession";
 }

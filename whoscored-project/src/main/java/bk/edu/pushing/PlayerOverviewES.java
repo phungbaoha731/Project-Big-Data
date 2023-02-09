@@ -11,18 +11,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PlayerMiscellaneousES {
+public class PlayerOverviewES {
     protected static ElasticStorage esStorage;
 
     protected static SparkUtil sparkUtil;
 
-    public PlayerMiscellaneousES(){
+    public PlayerOverviewES(){
         esStorage = new ElasticStorage();
         sparkUtil = new SparkUtil("who-scored", "save result matches to es", "yarn");
     }
 
     public void writeToEs(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" + ConfigName.PLAYER_MISCELLANEOUS + "/2023-02-08");
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" + ConfigName.PLAYER_OVERVIEW + "/2023-02-08");
         df = df.na().fill(0);
         df.printSchema();
         //df.show(10);
@@ -49,35 +49,33 @@ public class PlayerMiscellaneousES {
             map.put("Pos", row.getInt(6));
             map.put("Age", Integer.parseInt(row.getString(7).split("-")[0]));
             map.put("Min", row.getInt(8));
-            map.put("Touches", row.getInt(9));
-            map.put("Touche_Def_Pen", row.getInt(10));
-            map.put("Touche_Def_3rd", row.getInt(11));
-            map.put("Touche_Mid_3rd", row.getInt(12));
-            map.put("Touche_Att_3rd", row.getInt(13));
-            map.put("Touche_Att_Pen", row.getInt(14));
-            map.put("Touche_Live", row.getInt(15));
-            map.put("Dribbles_Suc", row.getInt(16));
-            map.put("Dribbles_Att", row.getDouble(17));
-            map.put("Dribbles_SucP", row.getDouble(18));
-            map.put("Dribbles_Mis", row.getInt(19));
-            map.put("Dribbles_Dis", row.getInt(20));
-            map.put("Receiving_Rec", row.getInt(21));
-            map.put("Receiving_Prog", row.getInt(22));
+            map.put("Att", row.getInt(9));
+            map.put("PerformanceGls", row.getInt(10));
+            map.put("PerformanceAst", row.getInt(11));
+            map.put("PerformancePK", row.getInt(12));
+            map.put("PerformancePKatt", row.getInt(13));
+            map.put("PerformanceSh", row.getInt(14));
+            map.put("PerformanceSoT", row.getInt(15));
+            map.put("PerformanceCrdY", row.getInt(16));
+            map.put("PerformanceCrdR", row.getInt(17));
+            map.put("PerformanceTouches", row.getInt(18));
+            map.put("PerformanceTkl", row.getInt(19));
+            map.put("PerformanceInt", row.getInt(20));
+            map.put("PerformanceBlocks", row.getDouble(21));
 
         } catch (Exception e){
             e.printStackTrace();
-            Thread.currentThread().interrupt();
             return;
         }
 
         esStorage.getBulk().add(new IndexRequest()
-                .index(ConfigName.PLAYER_MISCELLANEOUS_INDEX)
+                .index(ConfigName.PLAYER_OVERVIEW_INDEX)
                 .id(matchId).source(map));
     }
 
     public static void main(String[] args){
-        PlayerMiscellaneousES playerMiscellaneousES = new PlayerMiscellaneousES();
-        playerMiscellaneousES.writeToEs();
+        PlayerOverviewES PlayerOverviewES = new PlayerOverviewES();
+        PlayerOverviewES.writeToEs();
         esStorage.close();
     }
 }

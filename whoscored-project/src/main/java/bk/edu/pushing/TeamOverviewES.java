@@ -26,7 +26,7 @@ public class TeamOverviewES implements Serializable {
     }
 
     public void writeToEs(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" + ConfigName.TEAM_OVERVIEW + "/2023-02-08")
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" + ConfigName.SHOT + "/2023-02-08")
                 .drop("xG").drop("PsxG").drop("Notes")
                 .drop("SCA_Event12")
                 .drop("SCA_Event14");
@@ -54,15 +54,16 @@ public class TeamOverviewES implements Serializable {
             map.put("Outcome", row.getString(5));
             map.put("Distance", row.getInt(6));
             map.put("BodyPart", row.getString(7));
-            map.put("SCA_Player11", row.getInt(8));
-            map.put("SCA_Player13", row.getInt(9));
-
+            map.put("SCA_Player11", row.getString(8));
+            map.put("SCA_Player13", row.getString(9));
         } catch (Exception e){
+            e.printStackTrace();
+            Thread.currentThread().interrupt();
             return;
         }
 
         esStorage.getBulk().add(new IndexRequest()
-                .index(ConfigName.TEAM_OVERVIEW_INDEX)
+                .index(ConfigName.SHOT_INDEX)
                 .id(matchId).source(map));
     }
 

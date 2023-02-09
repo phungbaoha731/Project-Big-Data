@@ -42,4 +42,10 @@ public class ConfigName {
     public static final String TEAM_OVERVIEW_INDEX = "team_overview";
 
     public static final String SHOT_INDEX = "shot";
+
+    public static final String PLAYER_PASSING_INDEX = "player_passing";
+
+    public static final String PLAYER_PASS_TYPE_INDEX = "player_pass_type";
+
+    public static final String PLAYER_OVERVIEW_INDEX = "player_overview";
 }

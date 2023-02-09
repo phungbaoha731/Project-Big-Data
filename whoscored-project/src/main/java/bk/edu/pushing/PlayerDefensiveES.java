@@ -182,7 +182,7 @@ public class PlayerDefensiveES implements Serializable {
             map.put("TacklesDef3nd", row.getInt(11));
             map.put("TacklesMid3nd", row.getInt(12));
             map.put("TacklesAtt3nd", row.getInt(13));
-            map.put("DribblesTkl", row.getDouble(14));
+            map.put("DribblesTkl", row.getInt(14));
             map.put("DribblesAtt", row.getDouble(15));
             map.put("DribblesTkl%", row.getDouble(16));
             map.put("DribblesPast", row.getInt(17));

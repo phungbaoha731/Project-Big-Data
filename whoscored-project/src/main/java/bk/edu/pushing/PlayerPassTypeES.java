@@ -11,18 +11,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PlayerMiscellaneousES {
+public class PlayerPassTypeES {
     protected static ElasticStorage esStorage;
 
     protected static SparkUtil sparkUtil;
 
-    public PlayerMiscellaneousES(){
+    public PlayerPassTypeES(){
         esStorage = new ElasticStorage();
         sparkUtil = new SparkUtil("who-scored", "save result matches to es", "yarn");
     }
 
     public void writeToEs(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" + ConfigName.PLAYER_MISCELLANEOUS + "/2023-02-08");
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" + ConfigName.PLAYER_PASS_TYPE + "/2023-02-08");
         df = df.na().fill(0);
         df.printSchema();
         //df.show(10);
@@ -49,20 +49,21 @@ public class PlayerMiscellaneousES {
             map.put("Pos", row.getInt(6));
             map.put("Age", Integer.parseInt(row.getString(7).split("-")[0]));
             map.put("Min", row.getInt(8));
-            map.put("Touches", row.getInt(9));
-            map.put("Touche_Def_Pen", row.getInt(10));
-            map.put("Touche_Def_3rd", row.getInt(11));
-            map.put("Touche_Mid_3rd", row.getInt(12));
-            map.put("Touche_Att_3rd", row.getInt(13));
-            map.put("Touche_Att_Pen", row.getInt(14));
-            map.put("Touche_Live", row.getInt(15));
-            map.put("Dribbles_Suc", row.getInt(16));
-            map.put("Dribbles_Att", row.getDouble(17));
-            map.put("Dribbles_SucP", row.getDouble(18));
-            map.put("Dribbles_Mis", row.getInt(19));
-            map.put("Dribbles_Dis", row.getInt(20));
-            map.put("Receiving_Rec", row.getInt(21));
-            map.put("Receiving_Prog", row.getInt(22));
+            map.put("Att", row.getInt(9));
+            map.put("PassTypeLive", row.getInt(10));
+            map.put("PassTypeDead", row.getInt(11));
+            map.put("PassTypeFK", row.getInt(12));
+            map.put("PassTypeTB", row.getInt(13));
+            map.put("PassTypeSw", row.getInt(14));
+            map.put("PassTypeCrs", row.getInt(15));
+            map.put("PassTypeTI", row.getInt(16));
+            map.put("PassTypeCK", row.getInt(17));
+            map.put("CornerKicksIn", row.getInt(18));
+            map.put("CornerKicksOut", row.getInt(19));
+            map.put("CornerKicksStr", row.getInt(20));
+            map.put("OutcomesCmp", row.getInt(21));
+            map.put("OutcomesOff", row.getInt(22));
+            map.put("OutcomesBlocks", row.getInt(23));
 
         } catch (Exception e){
             e.printStackTrace();
@@ -71,13 +72,13 @@ public class PlayerMiscellaneousES {
         }
 
         esStorage.getBulk().add(new IndexRequest()
-                .index(ConfigName.PLAYER_MISCELLANEOUS_INDEX)
+                .index(ConfigName.PLAYER_PASS_TYPE_INDEX)
                 .id(matchId).source(map));
     }
 
     public static void main(String[] args){
-        PlayerMiscellaneousES playerMiscellaneousES = new PlayerMiscellaneousES();
-        playerMiscellaneousES.writeToEs();
+        PlayerPassTypeES PlayerPassTypeES = new PlayerPassTypeES();
+        PlayerPassTypeES.writeToEs();
         esStorage.close();
     }
 }

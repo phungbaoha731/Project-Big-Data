@@ -43,6 +43,7 @@ public class ResultMatchesES implements Serializable {
     }
 
     private void saveResult(Row row) {
+        Map<String, Object> map = new HashMap<>();
         String matchId = row.getString(0);
         String dateStr = row.getString(1);
         String time = row.getString(2);
@@ -60,16 +61,17 @@ public class ResultMatchesES implements Serializable {
         Integer homeScore;
         Integer awayScore;
         try {
-            homeScore = Integer.parseInt(score.split("%")[0]);
-            awayScore = Integer.parseInt(score.split("%")[1]);
+            score = score.replace("?", "-");
+            homeScore = Integer.parseInt(score.split("-")[0]);
+            awayScore = Integer.parseInt(score.split("-")[1]);
         } catch (Exception e){
+            e.printStackTrace();
+            Thread.currentThread().interrupt();
             return;
         }
         String attendance = row.getString(6);
         String venue = row.getString(7);
         String reference = row.getString(8);
-
-        Map<String, Object> map = new HashMap<>();
         map.put("Date", date);
         map.put("Hour", time);
         map.put("Home", home);

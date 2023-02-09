@@ -43,13 +43,13 @@ public class ETLGkOverViewES implements Serializable {
         }
 //        listDf.clear();
         //spark-submit --master yarn --deploy-mode client --driver-memory 1g --executor-cores 2 --num-executors 1 --executor-memory 2g --class bk.edu.pushing.ETLGkOverViewES whoscored-project-1.0-SNAPSHOT-jar-with-dependencies.jar
-//        df = sparkUtil.getSparkSession().read().parquet("/user/" + ConfigName.GK_OVERVIEW + "/2023-02-08");
-//        df = df.na().fill(0);
-//        List<Row> listDf2 = df.collectAsList();
-//        for(int i = 0; i < listDf2.size(); i++){
-//            saveGkOverviewRaw(listDf2.get(i));
-//            System.out.println("save " + i);
-//        }
+        df = sparkUtil.getSparkSession().read().parquet("/user/" + ConfigName.GK_OVERVIEW + "/2023-02-08");
+        df = df.na().fill(0);
+        List<Row> listDf2 = df.collectAsList();
+        for(int i = 0; i < listDf2.size(); i++){
+            saveGkOverviewRaw(listDf2.get(i));
+            System.out.println("save " + i);
+        }
     }
 
     public void saveMaxGkOverView(Row row){

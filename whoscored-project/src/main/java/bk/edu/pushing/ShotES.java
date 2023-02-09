@@ -23,7 +23,7 @@ public class ShotES implements Serializable {
     }
 
     public void writeToEs(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" + ConfigName.SHOT + "/2023-02-08");
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" + ConfigName.TEAM_OVERVIEW + "/2023-02-08");
         df = df.na().fill(0);
         df.printSchema();
         //df.show(10);
@@ -48,14 +48,14 @@ public class ShotES implements Serializable {
             if(passingAcc[1].contains("%")){
                 map.put("PassingAccuracy",Integer.parseInt(passingAcc[1].replace("%", "")));
             } else {
-                map.put("PassingAccuracy",Integer.parseInt(passingAcc[2].replace("%", "")));
+                map.put("PassingAccuracy",Integer.parseInt(passingAcc[0].replace("%", "")));
             }
 
             String[] shotOnTargets = row.getString(6).split("\\?");
             if(shotOnTargets[1].contains("%")){
                 map.put("ShotOnTargets",Integer.parseInt(shotOnTargets[1].replace("%", "")));
             } else {
-                map.put("ShotOnTargets",Integer.parseInt(shotOnTargets[2].replace("%", "")));
+                map.put("ShotOnTargets",Integer.parseInt(shotOnTargets[0].replace("%", "")));
             }
 
             String[] saves = row.getString(7).split("\\?");
@@ -84,11 +84,12 @@ public class ShotES implements Serializable {
 
         } catch (Exception e){
             e.printStackTrace();
+            Thread.currentThread().interrupt();
             return;
         }
 
         esStorage.getBulk().add(new IndexRequest()
-                .index(ConfigName.SHOT_INDEX)
+                .index(ConfigName.TEAM_OVERVIEW_INDEX)
                 .id(matchId).source(map));
     }
 

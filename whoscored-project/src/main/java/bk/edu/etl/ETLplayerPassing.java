@@ -2,6 +2,7 @@ package bk.edu.etl;
 
 import bk.edu.conf.ConfigName;
 import bk.edu.utils.SparkUtil;
+import bk.edu.utils.TimeUtil;
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -21,8 +22,8 @@ public class ETLplayerPassing implements Serializable {
     }
 
     public Dataset<Row> playerPassing(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet(ConfigName.PLAYER_PASSING + "/04-05-2023");
-        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet(ConfigName.RESULT_MATCHES + "/04-05-2023")
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_PASSING +"/2023-02-08");
+        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES +"/2023-02-08")
                 .select("Match_ID", "Date", "Home", "Away", "Score")
                 .withColumnRenamed("Match_ID", "Match_ID2");
 
@@ -41,20 +42,6 @@ public class ETLplayerPassing implements Serializable {
         Dataset<Row> maxValueGroupBy = maxValueDf.join(maxValueColumn,
                 maxValueDf.col("Total_Cmp").equalTo(maxValueColumn.col("max_Total_Cmp"))
                         .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Total_Cmp").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Total_Cmp").agg(collect_list("Player").as("Player_max_Total_Cmp"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
-
-
-
-        maxValueDf = df.select("Match_ID","Player", "Total_Cmp");
-        maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Total_Cmp").as("max_Total_Cmp"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Total_Cmp").equalTo(maxValueColumn.col("max_Total_Cmp"))
-                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
                 .drop("Total_Cmp").drop("Match_ID2")
                 .groupBy("Match_ID", "max_Total_Cmp").agg(collect_list("Player").as("Player_max_Total_Cmp"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
@@ -349,19 +336,20 @@ public class ETLplayerPassing implements Serializable {
                         DataTypes.createStructField("Away", DataTypes.StringType, false),
                         DataTypes.createStructField("Score", DataTypes.StringType, false),
                         DataTypes.createStructField("max_Total_Cmp",structChild , false),
-                        DataTypes.createStructField("max_Total_Att",structChild , false),
+                        DataTypes.createStructField("max_Total_Att",structDoubleChild , false),
                         DataTypes.createStructField("max_Total_Cmp%",structDoubleChild , false),
                         DataTypes.createStructField("max_Total_TotDist",structChild , false),
                         DataTypes.createStructField("max_PrgDist",structChild , false),
                         DataTypes.createStructField("max_Short_Cmp",structChild , false),
-                        DataTypes.createStructField("max_Short_Cmp%",structChild , false),
-                        DataTypes.createStructField("max_Medium_Cmp",structDoubleChild , false),
-                        DataTypes.createStructField("max_Medium_Att",structChild , false),
+                        DataTypes.createStructField("max_Short_Att",structDoubleChild , false),
+                        DataTypes.createStructField("max_Short_Cmp%",structDoubleChild , false),
+                        DataTypes.createStructField("max_Medium_Cmp",structChild , false),
+                        DataTypes.createStructField("max_Medium_Att",structDoubleChild , false),
                         DataTypes.createStructField("max_Medium_Cmp%",structDoubleChild , false),
                         DataTypes.createStructField("max_Long_Cmp",structChild , false),
-                        DataTypes.createStructField("max_Long_Att",structChild , false),
+                        DataTypes.createStructField("max_Long_Att",structDoubleChild , false),
                         DataTypes.createStructField("max_Long_Cmp%",structDoubleChild , false),
-                        DataTypes.createStructField("max_Ast",structChild , false),
+                        DataTypes.createStructField("max_Ast",structDoubleChild , false),
                         DataTypes.createStructField("max_xAG",structDoubleChild , false),
                         DataTypes.createStructField("max_xA",structDoubleChild , false),
                         DataTypes.createStructField("max_KP",structChild , false),
@@ -377,34 +365,35 @@ public class ETLplayerPassing implements Serializable {
                         v1.getString(2), v1.getString(3), v1.getString(4),
                         v1.getString(5),
                         RowFactory.create(v1.getSeq(7), v1.getInt(6)),
-                        RowFactory.create(v1.getSeq(9), v1.getInt(8)),
+                        RowFactory.create(v1.getSeq(9), v1.getDouble(8)),
                         RowFactory.create(v1.getSeq(11), v1.getDouble(10)),
                         RowFactory.create(v1.getSeq(13), v1.getInt(12)),
                         RowFactory.create(v1.getSeq(15), v1.getInt(14)),
                         RowFactory.create(v1.getSeq(17), v1.getInt(16)),
-                        RowFactory.create(v1.getSeq(19), v1.getInt(18)),
+                        RowFactory.create(v1.getSeq(19), v1.getDouble(18)),
                         RowFactory.create(v1.getSeq(21), v1.getDouble(20)),
                         RowFactory.create(v1.getSeq(23), v1.getInt(22)),
                         RowFactory.create(v1.getSeq(25), v1.getDouble(24)),
-                        RowFactory.create(v1.getSeq(27), v1.getInt(26)),
+                        RowFactory.create(v1.getSeq(27), v1.getDouble(26)),
                         RowFactory.create(v1.getSeq(29), v1.getInt(28)),
                         RowFactory.create(v1.getSeq(31), v1.getDouble(30)),
-                        RowFactory.create(v1.getSeq(33), v1.getInt(32)),
+                        RowFactory.create(v1.getSeq(33), v1.getDouble(32)),
                         RowFactory.create(v1.getSeq(35), v1.getDouble(34)),
                         RowFactory.create(v1.getSeq(37), v1.getDouble(36)),
-                        RowFactory.create(v1.getSeq(39), v1.getInt(38)),
+                        RowFactory.create(v1.getSeq(39), v1.getDouble(38)),
                         RowFactory.create(v1.getSeq(41), v1.getInt(40)),
                         RowFactory.create(v1.getSeq(43), v1.getInt(42)),
-                        RowFactory.create(v1.getSeq(45), v1.getInt(44)));
+                        RowFactory.create(v1.getSeq(45), v1.getInt(44)),
+                        RowFactory.create(v1.getSeq(47), v1.getInt(46)));
 
             }
         }, RowEncoder.apply(struct));
-        dfFinal.write().mode("overwrite").parquet("max" + ConfigName.PLAYER_PASSING + "/04-05-2023");
+        dfFinal.write().mode("overwrite").parquet("/user/max" +  ConfigName.PLAYER_PASSING +"/2023-02-08");
     }
 
     public static void main(String[] args){
         ETLplayerPassing etl = new ETLplayerPassing();
         Dataset<Row> playerPassing = etl.playerPassing();
-        // etl.convertMaxGkOverview(gkOverview);
+        etl.convertMaxPlayerPassing(playerPassing);
     }
 }

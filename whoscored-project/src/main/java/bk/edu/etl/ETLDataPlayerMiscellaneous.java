@@ -14,15 +14,15 @@ import org.apache.spark.sql.types.StructType;
 import scala.Serializable;
 
 import static org.apache.spark.sql.functions.*;
-public class ETLplayerPassType implements Serializable {
+public class ETLDataPlayerMiscellaneous implements Serializable {
     private static SparkUtil sparkUtil;
 
-    public ETLplayerPassType() {
+    public ETLDataPlayerMiscellaneous() {
         sparkUtil = new SparkUtil("who-scored", "save to hdfs", "yarn");
     }
 
-    public Dataset<Row> playerPassType(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_PASS_TYPE + "/2023-02-08");
+    public Dataset<Row> playerMiscellaneous(){
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_MISCELLANEOUS + "/2023-02-08");
         Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/2023-02-08")
                 .select("Match_ID", "Date", "Home", "Away", "Score")
                 .withColumnRenamed("Match_ID", "Match_ID2");
@@ -32,203 +32,178 @@ public class ETLplayerPassType implements Serializable {
         Dataset<Row> finalDf = df.select("Match_ID", "Tournament");
         finalDf = finalDf.join(dfTime, dfTime.col("Match_ID2").equalTo(finalDf.col("Match_ID")), "inner").drop("Match_ID2").distinct();
 
-
-
-        Dataset<Row> maxValueDf = df.select("Match_ID","Player", "Att");
+        Dataset<Row> maxValueDf = df.select("Match_ID","Player", "Touches");
         Dataset<Row> maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Att").as("max_Att"))
+                .agg(max("Touches").as("max_Touches"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueColumn.show();
         Dataset<Row> maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                maxValueDf.col("Att").equalTo(maxValueColumn.col("max_Att"))
+                maxValueDf.col("Touches").equalTo(maxValueColumn.col("max_Touches"))
                         .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Att").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Att").agg(collect_list("Player").as("Player_max_Att"))
+                .drop("Touches").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Touches").agg(collect_list("Player").as("Player_max_Touches"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 
-
-        maxValueDf = df.select("Match_ID","Player", "Pass_Type_Live");
+        maxValueDf = df.select("Match_ID","Player", "Touche_Def_Pen");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Pass_Type_Live").as("max_Pass_Type_Live"))
+                .agg(max("Touche_Def_Pen").as("max_Touche_Def_Pen"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Pass_Type_Live").equalTo(maxValueColumn.col("max_Pass_Type_Live"))
+                        maxValueDf.col("Touche_Def_Pen").equalTo(maxValueColumn.col("max_Touche_Def_Pen"))
                                 .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Pass_Type_Live").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Pass_Type_Live").agg(collect_list("Player").as("Player_max_Pass_Type_Live"))
+                .drop("Touche_Def_Pen").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Touche_Def_Pen").agg(collect_list("Player").as("Player_max_Touche_Def_Pen"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 
-
-        maxValueDf = df.select("Match_ID","Player", "Pass_Type_Dead");
+        maxValueDf = df.select("Match_ID","Player", "Touche_Def_3rd");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Pass_Type_Dead").as("max_Pass_Type_Dead"))
+                .agg(max("Touche_Def_3rd").as("max_Touche_Def_3rd"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Pass_Type_Dead").equalTo(maxValueColumn.col("max_Pass_Type_Dead"))
+                        maxValueDf.col("Touche_Def_3rd").equalTo(maxValueColumn.col("max_Touche_Def_3rd"))
                                 .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Pass_Type_Dead").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Pass_Type_Dead").agg(collect_list("Player").as("Player_max_Pass_Type_Dead"))
+                .drop("Touche_Def_3rd").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Touche_Def_3rd").agg(collect_list("Player").as("Player_max_Touche_Def_3rd"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 
-
-        maxValueDf = df.select("Match_ID","Player", "Pass_Type_FK");
+        maxValueDf = df.select("Match_ID","Player", "Touche_Mid_3rd");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Pass_Type_FK").as("max_Pass_Type_FK"))
+                .agg(max("Touche_Mid_3rd").as("max_Touche_Mid_3rd"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Pass_Type_FK").equalTo(maxValueColumn.col("max_Pass_Type_FK"))
+                        maxValueDf.col("Touche_Mid_3rd").equalTo(maxValueColumn.col("max_Touche_Mid_3rd"))
                                 .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Pass_Type_FK").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Pass_Type_FK").agg(collect_list("Player").as("Player_max_Pass_Type_FK"))
+                .drop("Touche_Mid_3rd").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Touche_Mid_3rd").agg(collect_list("Player").as("Player_max_Touche_Mid_3rd"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 
-
-        maxValueDf = df.select("Match_ID","Player", "Pass_Type_TB");
+        maxValueDf = df.select("Match_ID","Player", "Touche_Att_3rd");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Pass_Type_TB").as("max_Pass_Type_TB"))
+                .agg(max("Touche_Att_3rd").as("max_Touche_Att_3rd"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Pass_Type_TB").equalTo(maxValueColumn.col("max_Pass_Type_TB"))
+                        maxValueDf.col("Touche_Att_3rd").equalTo(maxValueColumn.col("max_Touche_Att_3rd"))
                                 .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Pass_Type_TB").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Pass_Type_TB").agg(collect_list("Player").as("Player_max_Pass_Type_TB"))
+                .drop("Touche_Att_3rd").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Touche_Att_3rd").agg(collect_list("Player").as("Player_max_Touche_Att_3rd"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 
-
-        maxValueDf = df.select("Match_ID","Player", "Pass_Type_Sw");
+        maxValueDf = df.select("Match_ID","Player", "Touche_Att_Pen");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Pass_Type_Sw").as("max_Pass_Type_Sw"))
+                .agg(max("Touche_Att_Pen").as("max_Touche_Att_Pen"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Pass_Type_Sw").equalTo(maxValueColumn.col("max_Pass_Type_Sw"))
+                        maxValueDf.col("Touche_Att_Pen").equalTo(maxValueColumn.col("max_Touche_Att_Pen"))
                                 .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Pass_Type_Sw").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Pass_Type_Sw").agg(collect_list("Player").as("Player_max_Pass_Type_Sw"))
+                .drop("Touche_Att_Pen").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Touche_Att_Pen").agg(collect_list("Player").as("Player_max_Touche_Att_Pen"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 
-
-        maxValueDf = df.select("Match_ID","Player", "Pass_Type_Crs");
+        maxValueDf = df.select("Match_ID","Player", "Touche_Live");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Pass_Type_Crs").as("max_Pass_Type_Crs"))
+                .agg(max("Touche_Live").as("max_Touche_Live"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Pass_Type_Crs").equalTo(maxValueColumn.col("max_Pass_Type_Crs"))
+                        maxValueDf.col("Touche_Live").equalTo(maxValueColumn.col("max_Touche_Live"))
                                 .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Pass_Type_Crs").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Pass_Type_Crs").agg(collect_list("Player").as("Player_max_Pass_Type_Crs"))
+                .drop("Touche_Live").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Touche_Live").agg(collect_list("Player").as("Player_max_Touche_Live"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 
-
-        maxValueDf = df.select("Match_ID","Player", "Pass_Type_TI");
+        maxValueDf = df.select("Match_ID","Player", "Dribbles_Succ");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Pass_Type_TI").as("max_Pass_Type_TI"))
+                .agg(max("Dribbles_Succ").as("max_Dribbles_Succ"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Pass_Type_TI").equalTo(maxValueColumn.col("max_Pass_Type_TI"))
+                        maxValueDf.col("Dribbles_Succ").equalTo(maxValueColumn.col("max_Dribbles_Succ"))
                                 .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Pass_Type_TI").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Pass_Type_TI").agg(collect_list("Player").as("Player_max_Pass_Type_TI"))
+                .drop("Dribbles_Succ").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Dribbles_Succ").agg(collect_list("Player").as("Player_max_Dribbles_Succ"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 
-
-        maxValueDf = df.select("Match_ID","Player", "Pass_Type_CK");
+        maxValueDf = df.select("Match_ID","Player", "Dribbles_Att");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Pass_Type_CK").as("max_Pass_Type_CK"))
+                .agg(max("Dribbles_Att").as("max_Dribbles_Att"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Pass_Type_CK").equalTo(maxValueColumn.col("max_Pass_Type_CK"))
+                        maxValueDf.col("Dribbles_Att").equalTo(maxValueColumn.col("max_Dribbles_Att"))
                                 .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Pass_Type_CK").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Pass_Type_CK").agg(collect_list("Player").as("Player_max_Pass_Type_CK"))
+                .drop("Dribbles_Att").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Dribbles_Att").agg(collect_list("Player").as("Player_max_Dribbles_Att"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
-        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
+        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();  
 
-
-        maxValueDf = df.select("Match_ID","Player", "Corner_Kicks_In");
+        maxValueDf = df.select("Match_ID","Player", "Dribbles_Succ%");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Corner_Kicks_In").as("max_Corner_Kicks_In"))
+                .agg(max("Dribbles_Succ%").as("max_Dribbles_Succ%"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Corner_Kicks_In").equalTo(maxValueColumn.col("max_Corner_Kicks_In"))
+                        maxValueDf.col("Dribbles_Succ%").equalTo(maxValueColumn.col("max_Dribbles_Succ%"))
                                 .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Corner_Kicks_In").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Corner_Kicks_In").agg(collect_list("Player").as("Player_max_Corner_Kicks_In"))
+                .drop("Dribbles_Succ%").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Dribbles_Succ%").agg(collect_list("Player").as("Player_max_Dribbles_Succ%"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 
 
-        maxValueDf = df.select("Match_ID","Player", "Corner_Kicks_Out");
+        maxValueDf = df.select("Match_ID","Player", "Dribbles_Mis");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Corner_Kicks_Out").as("max_Corner_Kicks_Out"))
+                .agg(max("Dribbles_Mis").as("max_Dribbles_Mis"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Corner_Kicks_Out").equalTo(maxValueColumn.col("max_Corner_Kicks_Out"))
+                        maxValueDf.col("Dribbles_Mis").equalTo(maxValueColumn.col("max_Dribbles_Mis"))
                                 .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Corner_Kicks_Out").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Corner_Kicks_Out").agg(collect_list("Player").as("Player_max_Corner_Kicks_Out"))
+                .drop("Dribbles_Succ%").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Dribbles_Mis").agg(collect_list("Player").as("Player_max_Dribbles_Mis"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 
 
-        maxValueDf = df.select("Match_ID","Player", "Corner_Kicks_Str");
+
+        maxValueDf = df.select("Match_ID","Player", "Dribbles_Dis");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Corner_Kicks_Str").as("max_Corner_Kicks_Str"))
+                .agg(max("Dribbles_Dis").as("max_Dribbles_Dis"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Corner_Kicks_Str").equalTo(maxValueColumn.col("max_Corner_Kicks_Str"))
+                        maxValueDf.col("Dribbles_Dis").equalTo(maxValueColumn.col("max_Dribbles_Dis"))
                                 .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Corner_Kicks_Str").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Corner_Kicks_Str").agg(collect_list("Player").as("Player_max_Corner_Kicks_Str"))
+                .drop("Dribbles_Dis").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Dribbles_Dis").agg(collect_list("Player").as("Player_max_Dribbles_Dis"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
+//
 
-
-        maxValueDf = df.select("Match_ID","Player", "Outcomes_Cmp");
+        maxValueDf = df.select("Match_ID","Player", "Receiving_Rec");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Outcomes_Cmp").as("max_Outcomes_Cmp"))
+                .agg(max("Receiving_Rec").as("max_Receiving_Rec"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Outcomes_Cmp").equalTo(maxValueColumn.col("max_Outcomes_Cmp"))
+                        maxValueDf.col("Receiving_Rec").equalTo(maxValueColumn.col("max_Receiving_Rec"))
                                 .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Outcomes_Cmp").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Outcomes_Cmp").agg(collect_list("Player").as("Player_max_Outcomes_Cmp"))
+                .drop("Receiving_Rec").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Receiving_Rec").agg(collect_list("Player").as("Player_max_Receiving_Rec"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 
-
-        maxValueDf = df.select("Match_ID","Player", "Outcomes_Off");
+        maxValueDf = df.select("Match_ID","Player", "Receiving_Prog");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Outcomes_Off").as("max_Outcomes_Off"))
+                .agg(max("Receiving_Prog").as("max_Receiving_Prog"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Outcomes_Off").equalTo(maxValueColumn.col("max_Outcomes_Off"))
+                        maxValueDf.col("Receiving_Prog").equalTo(maxValueColumn.col("max_Receiving_Prog"))
                                 .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Outcomes_Off").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Outcomes_Off").agg(collect_list("Player").as("Player_max_Outcomes_Off"))
+                .drop("Receiving_Prog").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Receiving_Prog").agg(collect_list("Player").as("Player_max_Receiving_Prog"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
-
-
-        maxValueDf = df.select("Match_ID","Player", "Outcomes_Blocks");
-        maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Outcomes_Blocks").as("max_Outcomes_Blocks"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Outcomes_Blocks").equalTo(maxValueColumn.col("max_Outcomes_Blocks"))
-                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Outcomes_Blocks").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Outcomes_Blocks").agg(collect_list("Player").as("Player_max_Outcomes_Blocks"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
-
 
         finalDf.show();
         finalDf.printSchema();
@@ -236,7 +211,7 @@ public class ETLplayerPassType implements Serializable {
         return finalDf;
     }
 
-    public void convertMaxPlayerPassType(Dataset<Row> df){
+    public void convertMaxPlayerMiscellaneous(Dataset<Row> df){
         StructType structChild = DataTypes.createStructType(
                 new StructField[] {
                         DataTypes.createStructField("Player", DataTypes.createArrayType(DataTypes.StringType), false),
@@ -257,22 +232,20 @@ public class ETLplayerPassType implements Serializable {
                         DataTypes.createStructField("Home", DataTypes.StringType, false),
                         DataTypes.createStructField("Away", DataTypes.StringType, false),
                         DataTypes.createStructField("Score", DataTypes.StringType, false),
-                        DataTypes.createStructField("max_Att",structChild , false),
-                        DataTypes.createStructField("max_Pass_Type_Live",structChild , false),
-                        DataTypes.createStructField("max_Pass_Type_Dead",structChild , false),
-                        DataTypes.createStructField("max_Pass_Type_FK",structChild , false),
-                        DataTypes.createStructField("max_Pass_Type_TB",structChild , false),
-                        DataTypes.createStructField("max_Pass_Type_Sw",structChild , false),
-                        DataTypes.createStructField("max_Pass_Type_Crs",structChild , false),
-                        DataTypes.createStructField("max_Pass_Type_TI",structChild , false),
-                        DataTypes.createStructField("max_Pass_Type_CK",structChild , false),
-                        DataTypes.createStructField("max_Corner_Kicks_In",structChild , false),
-                        DataTypes.createStructField("max_Corner_Kicks_Out",structChild , false),
-                        DataTypes.createStructField("max_Corner_Kicks_Str",structChild , false),
-                        DataTypes.createStructField("max_Outcomes_Cmp",structChild , false),
-                        DataTypes.createStructField("max_Outcomes_Off",structChild , false),
-                        DataTypes.createStructField("max_Outcomes_Blocks",structChild , false)
-
+                        DataTypes.createStructField("max_Touches",structChild , false),
+                        DataTypes.createStructField("max_Touche_Def_Pen",structChild , false),
+                        DataTypes.createStructField("max_Touche_Def_3rd",structChild , false),
+                        DataTypes.createStructField("max_Touche_Mid_3rd",structChild , false),
+                        DataTypes.createStructField("max_Touche_Att_3rd",structChild , false),
+                        DataTypes.createStructField("max_Touche_Att_Pen",structChild , false),
+                        DataTypes.createStructField("max_Touche_Live",structChild , false),
+                        DataTypes.createStructField("max_Dribbles_Succ",structChild , false),
+                        DataTypes.createStructField("max_Dribbles_Att",structDoubleChild , false),
+                        DataTypes.createStructField("max_Dribbles_Succ%",structDoubleChild , false),
+                        DataTypes.createStructField("max_Dribbles_Mis",structChild , false),
+                        DataTypes.createStructField("max_Dribbles_Dis",structChild , false),
+                        DataTypes.createStructField("max_Receiving_Rec",structChild , false),
+                        DataTypes.createStructField("max_Receiving_Prog",structChild , false),
                 }
         );
         Dataset<Row> dfFinal = df.map(new MapFunction<Row, Row>() {
@@ -289,22 +262,20 @@ public class ETLplayerPassType implements Serializable {
                         RowFactory.create(v1.getSeq(17), v1.getInt(16)),
                         RowFactory.create(v1.getSeq(19), v1.getInt(18)),
                         RowFactory.create(v1.getSeq(21), v1.getInt(20)),
-                        RowFactory.create(v1.getSeq(23), v1.getInt(22)),
-                        RowFactory.create(v1.getSeq(25), v1.getInt(24)),
+                        RowFactory.create(v1.getSeq(23), v1.getDouble(22)),
+                        RowFactory.create(v1.getSeq(25), v1.getDouble(24)),
                         RowFactory.create(v1.getSeq(27), v1.getInt(26)),
                         RowFactory.create(v1.getSeq(29), v1.getInt(28)),
                         RowFactory.create(v1.getSeq(31), v1.getInt(30)),
-                        RowFactory.create(v1.getSeq(33), v1.getInt(32)),
-                        RowFactory.create(v1.getSeq(35), v1.getInt(34)));
-
+                        RowFactory.create(v1.getSeq(33), v1.getInt(32)));
             }
         }, RowEncoder.apply(struct));
-        dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.PLAYER_PASS_TYPE + "/2023-02-08");
+        dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.PLAYER_MISCELLANEOUS + "/2023-02-08");
     }
 
     public static void main(String[] args){
-        ETLplayerPassType etl = new ETLplayerPassType();
-        Dataset<Row> playerPassType = etl.playerPassType();
-        etl.convertMaxPlayerPassType(playerPassType);
+        ETLDataPlayerMiscellaneous etl = new ETLDataPlayerMiscellaneous();
+        Dataset<Row> playerMiscellaneous = etl.playerMiscellaneous();
+        etl.convertMaxPlayerMiscellaneous(playerMiscellaneous);
     }
 }

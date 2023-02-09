@@ -304,7 +304,7 @@ maxValueDf = df.select("Match_ID","Player", "Dribbles_Past");
                         RowFactory.create(v1.getSeq(11), v1.getInt(10)),
                         RowFactory.create(v1.getSeq(13), v1.getInt(12)),
                         RowFactory.create(v1.getSeq(15), v1.getInt(14)),
-                        RowFactory.create(v1.getSeq(17), v1.getDouble(16)),
+                        RowFactory.create(v1.getSeq(17), v1.getInt(16)),
                         RowFactory.create(v1.getSeq(19), v1.getDouble(18)),
                         RowFactory.create(v1.getSeq(21), v1.getDouble(20)),
                         RowFactory.create(v1.getSeq(23), v1.getInt(22)),

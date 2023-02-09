@@ -22,8 +22,8 @@ public class ETLplayerPossession implements Serializable {
     }
 
     public Dataset<Row> playerPossession(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_POSSESSION + "/04-05-2023");
-        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/04-05-2023")
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_POSSESSION + "/2023-02-08");
+        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/2023-02-08")
                 .select("Match_ID", "Date", "Home", "Away", "Score")
                 .withColumnRenamed("Match_ID", "Match_ID2");
 
@@ -237,7 +237,7 @@ public class ETLplayerPossession implements Serializable {
         return finalDf;
     }
 
-    public void convertPlayerPossession(Dataset<Row> df){
+    public void convertMaxPlayerPossession(Dataset<Row> df){
         StructType structChild = DataTypes.createStructType(
                 new StructField[] {
                         DataTypes.createStructField("Player", DataTypes.createArrayType(DataTypes.StringType), false),
@@ -268,7 +268,7 @@ public class ETLplayerPossession implements Serializable {
                         DataTypes.createStructField("max_Dribbles_Succ",structChild , false),
                         DataTypes.createStructField("max_Dribbles_Att",structChild , false),
                         DataTypes.createStructField("max_Dribbles_Succ%",structDoubleChild , false),
-                        DataTypes.createStructField("max_Dribbles_Mis",structChild , false),
+                        DataTypes.createStructField("max_Dribbles_Mis",structDoubleChild , false),
                         DataTypes.createStructField("max_Dribbles_Dis",structChild , false),
                         DataTypes.createStructField("max_Receiving_Rec",structChild , false),
                         DataTypes.createStructField("max_Receiving_Prog",structChild , false)
@@ -290,26 +290,20 @@ public class ETLplayerPossession implements Serializable {
                         RowFactory.create(v1.getSeq(19), v1.getInt(18)),
                         RowFactory.create(v1.getSeq(21), v1.getInt(20)),
                         RowFactory.create(v1.getSeq(23), v1.getInt(22)),
-                        RowFactory.create(v1.getSeq(25), v1.getInt(24)),
-                        RowFactory.create(v1.getSeq(27), v1.getInt(26)),
+                        RowFactory.create(v1.getSeq(25), v1.getDouble(24)),
+                        RowFactory.create(v1.getSeq(27), v1.getDouble(26)),
                         RowFactory.create(v1.getSeq(29), v1.getInt(28)),
                         RowFactory.create(v1.getSeq(31), v1.getInt(30)),
-                        RowFactory.create(v1.getSeq(33), v1.getInt(32)),
-                        RowFactory.create(v1.getSeq(35), v1.getInt(34)),
-                        RowFactory.create(v1.getSeq(37), v1.getDouble(36)),
-                        RowFactory.create(v1.getSeq(39), v1.getInt(38)),
-                        RowFactory.create(v1.getSeq(41), v1.getInt(40)),
-                        RowFactory.create(v1.getSeq(43), v1.getInt(42)),
-                        RowFactory.create(v1.getSeq(45), v1.getInt(44)));
+                        RowFactory.create(v1.getSeq(33), v1.getInt(32)));
 
             }
         }, RowEncoder.apply(struct));
-        dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.PLAYER_POSSESSION +"/2023-02-08");
+        dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.PLAYER_POSSESSION + "/2023-02-08");
     }
 
     public static void main(String[] args){
         ETLplayerPossession etl = new ETLplayerPossession();
         Dataset<Row> playerPossession = etl.playerPossession();
-        // etl.convertMaxGkOverview(gkOverview);
+        etl.convertMaxPlayerPossession(playerPossession);
     }
 }

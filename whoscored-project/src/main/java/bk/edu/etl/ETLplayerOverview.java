@@ -38,24 +38,11 @@ public class ETLplayerOverview implements Serializable {
         Dataset<Row> maxValueColumn = maxValueDf.groupBy("Match_ID")
                 .agg(max("Performance_Gls").as("max_Performance_Gls"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
-        maxValueColumn.show();
+        //maxValueColumn.show();
         Dataset<Row> maxValueGroupBy = maxValueDf.join(maxValueColumn,
                 maxValueDf.col("Performance_Gls").equalTo(maxValueColumn.col("max_Performance_Gls"))
                         .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
                 .drop("Att").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Performance_Gls").agg(collect_list("Player").as("Player_max_Performance_Gls"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
-
-
-                maxValueDf = df.select("Match_ID","Player", "Performance_Gls");
-        maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Performance_Gls").as("max_Performance_Gls"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Performance_Gls").equalTo(maxValueColumn.col("max_Performance_Gls"))
-                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Performance_Gls").drop("Match_ID2")
                 .groupBy("Match_ID", "max_Performance_Gls").agg(collect_list("Player").as("Player_max_Performance_Gls"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
@@ -383,17 +370,17 @@ public class ETLplayerOverview implements Serializable {
                         DataTypes.createStructField("max_Performance_CrdY",structChild , false),
                         DataTypes.createStructField("max_Performance_CrdR",structChild , false),
                         DataTypes.createStructField("max_Performance_Touches",structChild , false),
-                        DataTypes.createStructField("max_Performance_Tkl",structDoubleChild , false),
+                        DataTypes.createStructField("max_Performance_Tkl",structChild , false),
                         DataTypes.createStructField("max_Performance_Int",structChild , false),
-                        DataTypes.createStructField("max_Performance_Blocks",structChild , false),
-                        DataTypes.createStructField("max_Expected_xG",structChild , false),
-                        DataTypes.createStructField("max_Expected_npxG",structChild , false),
-                        DataTypes.createStructField("max_Expected_xAG",structChild , false),
+                        DataTypes.createStructField("max_Performance_Blocks",structDoubleChild , false),
+                        DataTypes.createStructField("max_Expected_xG",structDoubleChild , false),
+                        DataTypes.createStructField("max_Expected_npxG",structDoubleChild , false),
+                        DataTypes.createStructField("max_Expected_xAG",structDoubleChild , false),
                         DataTypes.createStructField("max_SCA",structChild , false),
                         DataTypes.createStructField("max_GCA",structChild , false),
                         DataTypes.createStructField("max_Passes_Cmp",structChild , false),
-                        DataTypes.createStructField("max_Passes_Att",structChild , false),
-                        DataTypes.createStructField("max_Passes_Cmp%",structChild , false),
+                        DataTypes.createStructField("max_Passes_Att",structDoubleChild , false),
+                        DataTypes.createStructField("max_Passes_Cmp%",structDoubleChild , false),
                         DataTypes.createStructField("max_Prog",structChild , false),
                         DataTypes.createStructField("max_Passes_Succ",structChild , false),
                         DataTypes.createStructField("max_Dribbles_Att",structChild , false)
@@ -417,14 +404,14 @@ public class ETLplayerOverview implements Serializable {
                         RowFactory.create(v1.getSeq(23), v1.getInt(22)),
                         RowFactory.create(v1.getSeq(25), v1.getInt(24)),
                         RowFactory.create(v1.getSeq(27), v1.getInt(26)),
-                        RowFactory.create(v1.getSeq(29), v1.getInt(28)),
+                        RowFactory.create(v1.getSeq(29), v1.getDouble(28)),
                         RowFactory.create(v1.getSeq(31), v1.getDouble(30)),
                         RowFactory.create(v1.getSeq(33), v1.getDouble(32)),
                         RowFactory.create(v1.getSeq(35), v1.getDouble(34)),
                         RowFactory.create(v1.getSeq(37), v1.getInt(36)),
                         RowFactory.create(v1.getSeq(39), v1.getInt(38)),
                         RowFactory.create(v1.getSeq(41), v1.getInt(40)),
-                        RowFactory.create(v1.getSeq(43), v1.getInt(42)),
+                        RowFactory.create(v1.getSeq(43), v1.getDouble(42)),
                         RowFactory.create(v1.getSeq(45), v1.getDouble(44)),
                         RowFactory.create(v1.getSeq(47), v1.getInt(46)),
                         RowFactory.create(v1.getSeq(49), v1.getInt(48)),
@@ -432,12 +419,12 @@ public class ETLplayerOverview implements Serializable {
 
             }
         }, RowEncoder.apply(struct));
-        dfFinal.write().mode("overwrite").parquet("/user/max" +  ConfigName.PLAYER_OVERVIEW + "/04-05-2023");
+        dfFinal.write().mode("overwrite").parquet("/user/max" +  ConfigName.PLAYER_OVERVIEW + "/2023-02-08");
     }
 
     public static void main(String[] args){
         ETLplayerOverview etl = new ETLplayerOverview();
         Dataset<Row> playerOverview = etl.playerOverview();
-        // etl.convertMaxGkOverview(gkOverview);
+        etl.convertMaxPlayerOverview(playerOverview);
     }
 }

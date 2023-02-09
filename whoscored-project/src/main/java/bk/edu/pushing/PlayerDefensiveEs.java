@@ -4,14 +4,13 @@ import bk.edu.conf.ConfigName;
 import bk.edu.model.StatsInt;
 import bk.edu.storage.ElasticStorage;
 import bk.edu.utils.SparkUtil;
-import bk.edu.utils.TimeUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.elasticsearch.action.index.IndexRequest;
-import scala.Serializable;
 import scala.collection.JavaConverters;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,40 +18,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ETLGkOverViewES implements Serializable {
+public class PlayerDefensiveEs implements Serializable {
     protected static ElasticStorage esStorage;
 
     protected static SparkUtil sparkUtil;
 
-
-    public ETLGkOverViewES(){
+    public PlayerDefensiveEs(){
         esStorage = new ElasticStorage();
         sparkUtil = new SparkUtil("who-scored", "save gk overview to es", "yarn");
     }
 
     public void writeToEs(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/max" + ConfigName.GK_OVERVIEW + "/2023-02-08");
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/max" + ConfigName.PLAYER_DEFENSIVE + "/2023-02-08");
         df = df.na().fill(0);
         df.printSchema();
         //df.show(10);
         List<Row> listDf = df.collectAsList();
         System.out.println("Start write to elastic");
         for(int i = 0; i < listDf.size(); i++){
-            saveMaxGkOverView(listDf.get(i));
+            saveMaxDefensive(listDf.get(i));
             System.out.println("save " + i);
         }
-//        listDf.clear();
+        listDf.clear();
         //spark-submit --master yarn --deploy-mode client --driver-memory 1g --executor-cores 2 --num-executors 1 --executor-memory 2g --class bk.edu.pushing.ETLGkOverViewES whoscored-project-1.0-SNAPSHOT-jar-with-dependencies.jar
-//        df = sparkUtil.getSparkSession().read().parquet("/user/" + ConfigName.GK_OVERVIEW + "/2023-02-08");
-//        df = df.na().fill(0);
-//        List<Row> listDf2 = df.collectAsList();
-//        for(int i = 0; i < listDf2.size(); i++){
-//            saveGkOverviewRaw(listDf2.get(i));
-//            System.out.println("save " + i);
-//        }
+
     }
 
-    public void saveMaxGkOverView(Row row){
+    public void saveMaxDefensive(Row row){
         String MatchId = row.getString(0);
         String tournament = row.getString(1);
         String dateStr = row.getString(2);
@@ -121,52 +113,13 @@ public class ETLGkOverViewES implements Serializable {
 
     }
 
-    public void saveGkOverviewRaw(Row row){
-        String tournament = row.getString(0);
-        String matchId = row.getString(1);
-        String ageStr = row.getString(5);
-        Integer age = null;
-        try {
-            age = Integer.parseInt(ageStr.split("-")[0]);
-        } catch (Exception e){
-            return;
-        }
-        Map<String, Object> map = new HashMap<>();
-        map.put("Tournament", tournament);
-        map.put("PlayerId", row.getString(2));
-        map.put("Player", row.getString(3));
-        map.put("Age", age);
-        map.put("ShotStoppingSoTA", row.getInt(7));
-        map.put("ShotStoppingGA", row.getInt(8));
-        map.put("ShotStoppingSaves", (int) row.getDouble(9));
-        map.put("ShotStoppingSave%", row.getDouble(10));
-        map.put("ShotStoppingPSxG", row.getDouble(11));
-        map.put("LaunchedCmp", row.getInt(12));
-        map.put("LaunchedAtt",row.getDouble(13));
-        map.put("LaunchedCmp%",row.getDouble(14));
-        map.put("PassesAtt", row.getInt(15));
-        map.put("PassesThr", row.getDouble(16));
-        map.put("PassesLaunch%", row.getDouble(17));
-        map.put("PassesAvgLen", row.getDouble(18));
-        map.put("GoalKicksAtt", row.getDouble(19));
-        map.put("GoalKicksAvgLen", row.getDouble(21));
-        map.put("CrossesOpp", row.getInt(22));
-        map.put("CrossesStp", row.getDouble(23));
-        map.put("CrossesStp%", row.getDouble(24));
-        map.put("Sweeper#OPA", row.getDouble(25));
-        map.put("SweeperAvgDist", row.getDouble(26));
-
-        esStorage.getBulk().add(new IndexRequest()
-                .index(ConfigName.GK_LOG_INDEX)
-                .id(matchId).source(map));
+    private void saveResult(Row row) {
 
     }
-
 
     public static void main(String[] args){
-        ETLGkOverViewES etlGkOverViewES = new ETLGkOverViewES();
-        etlGkOverViewES.writeToEs();
+        PlayerDefensiveEs playerDefensiveEs = new PlayerDefensiveEs();
+        playerDefensiveEs.writeToEs();
         esStorage.close();
     }
-
 }

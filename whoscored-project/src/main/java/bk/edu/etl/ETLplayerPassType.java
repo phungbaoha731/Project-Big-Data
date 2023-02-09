@@ -22,8 +22,8 @@ public class ETLplayerPassType implements Serializable {
     }
 
     public Dataset<Row> playerPassType(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_PASS_TYPE + "/04-05-2023");
-        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/04-05-2023")
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_PASS_TYPE + "/2023-02-08");
+        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/2023-02-08")
                 .select("Match_ID", "Date", "Home", "Away", "Score")
                 .withColumnRenamed("Match_ID", "Match_ID2");
 
@@ -42,20 +42,6 @@ public class ETLplayerPassType implements Serializable {
         Dataset<Row> maxValueGroupBy = maxValueDf.join(maxValueColumn,
                 maxValueDf.col("Att").equalTo(maxValueColumn.col("max_Att"))
                         .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Att").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Att").agg(collect_list("Player").as("Player_max_Att"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
-
-
-
-        maxValueDf = df.select("Match_ID","Player", "Att");
-        maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Att").as("max_Att"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Att").equalTo(maxValueColumn.col("max_Att"))
-                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
                 .drop("Att").drop("Match_ID2")
                 .groupBy("Match_ID", "max_Att").agg(collect_list("Player").as("Player_max_Att"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
@@ -319,6 +305,6 @@ public class ETLplayerPassType implements Serializable {
     public static void main(String[] args){
         ETLplayerPassType etl = new ETLplayerPassType();
         Dataset<Row> playerPassType = etl.playerPassType();
-        // etl.convertMaxGkOverview(gkOverview);
+        etl.convertMaxPlayerPassType(playerPassType);
     }
 }

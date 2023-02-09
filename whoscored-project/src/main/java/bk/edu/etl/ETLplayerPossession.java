@@ -22,8 +22,8 @@ public class ETLplayerPossession implements Serializable {
     }
 
     public Dataset<Row> playerPossession(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_POSSESSION + "/04-05-2023");
-        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/04-05-2023")
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_POSSESSION + "/2023-02-08");
+        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/2023-02-08")
                 .select("Match_ID", "Date", "Home", "Away", "Score")
                 .withColumnRenamed("Match_ID", "Match_ID2");
 
@@ -43,20 +43,6 @@ public class ETLplayerPossession implements Serializable {
                 maxValueDf.col("Touches").equalTo(maxValueColumn.col("max_Touches"))
                         .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
                 .drop("Att").drop("Match_ID2")
-                .groupBy("Match_ID", "max_Touches").agg(collect_list("Player").as("Player_max_Touches"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
-
-
-
-                maxValueDf = df.select("Match_ID","Player", "Touches");
-        maxValueColumn = maxValueDf.groupBy("Match_ID")
-                .agg(max("Touches").as("max_Touches"))
-                .withColumnRenamed("Match_ID", "Match_ID2");
-        maxValueGroupBy = maxValueDf.join(maxValueColumn,
-                        maxValueDf.col("Touches").equalTo(maxValueColumn.col("max_Touches"))
-                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
-                .drop("Touches").drop("Match_ID2")
                 .groupBy("Match_ID", "max_Touches").agg(collect_list("Player").as("Player_max_Touches"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
@@ -310,6 +296,6 @@ public class ETLplayerPossession implements Serializable {
     public static void main(String[] args){
         ETLplayerPossession etl = new ETLplayerPossession();
         Dataset<Row> playerPossession = etl.playerPossession();
-        // etl.convertMaxGkOverview(gkOverview);
+        etl.convertPlayerPossession(playerPossession);
     }
 }

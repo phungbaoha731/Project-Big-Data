@@ -214,7 +214,7 @@ public class ETLDataPlayerMiscellaneous implements Serializable {
                         DataTypes.createStructField("max_Touche_Att_Pen",structChild , false),
                         DataTypes.createStructField("max_Touche_Live",structChild , false),
                         DataTypes.createStructField("max_Dribbles_Succ",structChild , false),
-                        DataTypes.createStructField("max_Dribbles_Att",structChild , false),
+                        DataTypes.createStructField("max_Dribbles_Att",structDoubleChild , false),
                         DataTypes.createStructField("max_Dribbles_Succ%",structDoubleChild , false),
                         DataTypes.createStructField("max_Receiving_Rec",structChild , false),
                         DataTypes.createStructField("max_Receiving_Prog",structChild , false),
@@ -234,7 +234,7 @@ public class ETLDataPlayerMiscellaneous implements Serializable {
                         RowFactory.create(v1.getSeq(17), v1.getInt(16)),
                         RowFactory.create(v1.getSeq(19), v1.getInt(18)),
                         RowFactory.create(v1.getSeq(21), v1.getInt(20)),
-                        RowFactory.create(v1.getSeq(23), v1.getInt(22)),
+                        RowFactory.create(v1.getSeq(23), v1.getDouble(22)),
                         RowFactory.create(v1.getSeq(25), v1.getDouble(24)),
                         RowFactory.create(v1.getSeq(27), v1.getInt(26)),
                         RowFactory.create(v1.getSeq(29), v1.getInt(28)));

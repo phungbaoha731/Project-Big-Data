@@ -34,4 +34,8 @@ public class ConfigName {
     public static final String GK_LOG_INDEX = "gk_overview";
 
     public static final String PD_INDEX = "player_defensive";
+
+    public static final String PM_INDEX = "player_Miscellaneous";
+
+    public static final String PLAYER_OVERVIEW_INDEX = "player_overview";
 }

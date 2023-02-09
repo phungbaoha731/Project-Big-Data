@@ -3,7 +3,6 @@ package bk.edu.etl;
 import bk.edu.conf.ConfigName;
 import bk.edu.utils.SparkUtil;
 import bk.edu.utils.TimeUtil;
-import org.apache.hadoop.yarn.util.timeline.TimelineUtils;
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -12,8 +11,7 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
-
-import java.io.Serializable;
+import scala.Serializable;
 
 import static org.apache.spark.sql.functions.*;
 public class ETLDataPlayerDefensive implements Serializable {
@@ -24,8 +22,8 @@ public class ETLDataPlayerDefensive implements Serializable {
     }
 
     public Dataset<Row> playerDefensive(){
-        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_DEFENSIVE +"/2023-02-08");
-        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES +"/2023-02-08")
+        Dataset<Row> df = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.PLAYER_DEFENSIVE + "/2023-02-08");
+        Dataset<Row> dfTime = sparkUtil.getSparkSession().read().parquet("/user/" +ConfigName.RESULT_MATCHES + "/2023-02-08")
                 .select("Match_ID", "Date", "Home", "Away", "Score")
                 .withColumnRenamed("Match_ID", "Match_ID2");
 
@@ -46,6 +44,20 @@ public class ETLDataPlayerDefensive implements Serializable {
                 .groupBy("Match_ID", "max_Tackles_Tkl").agg(collect_list("Player").as("Player_max_Tackles_Tkl"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
+
+
+        maxValueDf = df.select("Match_ID","Player", "Tackles_TklW");
+        maxValueColumn = maxValueDf.groupBy("Match_ID")
+                .agg(max("Tackles_TklW").as("max_Tackles_TklW"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        maxValueGroupBy = maxValueDf.join(maxValueColumn,
+                        maxValueDf.col("Tackles_TklW").equalTo(maxValueColumn.col("max_Tackles_TklW"))
+                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
+                .drop("Tackles_TklW").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Tackles_TklW").agg(collect_list("Player").as("Player_max_Tackles_TklW"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
+
 
         maxValueDf = df.select("Match_ID","Player", "Tackles_Def_3rd");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
@@ -126,6 +138,18 @@ public class ETLDataPlayerDefensive implements Serializable {
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();  
 
+
+maxValueDf = df.select("Match_ID","Player", "Dribbles_Past");
+        maxValueColumn = maxValueDf.groupBy("Match_ID")
+                .agg(max("Dribbles_Past").as("max_Dribbles_Past"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        maxValueGroupBy = maxValueDf.join(maxValueColumn,
+                        maxValueDf.col("Dribbles_Past").equalTo(maxValueColumn.col("max_Dribbles_Past"))
+                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
+                .drop("Dribbles_Past").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Dribbles_Past").agg(collect_list("Player").as("Player_max_Dribbles_Past"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();  
         // Blocks
         
         maxValueDf = df.select("Match_ID","Player", "Blocks");
@@ -139,6 +163,31 @@ public class ETLDataPlayerDefensive implements Serializable {
                 .groupBy("Match_ID", "max_Blocks").agg(collect_list("Player").as("Player_max_Blocks"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();  
+
+        maxValueDf = df.select("Match_ID","Player", "Blocks_Sh");
+        maxValueColumn = maxValueDf.groupBy("Match_ID")
+                .agg(max("Blocks_Sh").as("max_Blocks_Sh"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        maxValueGroupBy = maxValueDf.join(maxValueColumn,
+                        maxValueDf.col("Blocks_Sh").equalTo(maxValueColumn.col("max_Blocks_Sh"))
+                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
+                .drop("Blocks_Sh").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Blocks_Sh").agg(collect_list("Player").as("Player_max_Blocks_Sh"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
+
+
+        maxValueDf = df.select("Match_ID","Player", "Blocks_Pass");
+        maxValueColumn = maxValueDf.groupBy("Match_ID")
+                .agg(max("Blocks_Pass").as("max_Blocks_Pass"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        maxValueGroupBy = maxValueDf.join(maxValueColumn,
+                        maxValueDf.col("Blocks_Pass").equalTo(maxValueColumn.col("max_Blocks_Pass"))
+                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
+                .drop("Blocks_Pass").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Blocks_Pass").agg(collect_list("Player").as("Player_max_Blocks_Pass"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();    
 
         // Interceptions
 
@@ -226,14 +275,18 @@ public class ETLDataPlayerDefensive implements Serializable {
                         DataTypes.createStructField("Home", DataTypes.StringType, false),
                         DataTypes.createStructField("Away", DataTypes.StringType, false),
                         DataTypes.createStructField("Score", DataTypes.StringType, false),
-                        DataTypes.createStructField("max_Tackles_Tkl",structChild , false),                        
+                        DataTypes.createStructField("max_Tackles_Tkl",structChild , false),  
+                        DataTypes.createStructField("max_Tackles_TklW",structChild , false),                      
                         DataTypes.createStructField("max_Tackles_Def_3rd",structChild , false),
-                        DataTypes.createStructField("max_Tackles_Mid",structChild , false),
-                        DataTypes.createStructField("max_Tackles_Att",structChild , false),                        
+                        DataTypes.createStructField("max_Tackles_Mid_3rd",structChild , false),
+                        DataTypes.createStructField("max_Tackles_Att_3rd",structChild , false),                        
                         DataTypes.createStructField("max_Dribbles_Tkl",structChild , false),                        
                         DataTypes.createStructField("max_Dribbles_Att",structDoubleChild , false),                        
                         DataTypes.createStructField("max_Dribbles_Tkl%",structDoubleChild , false),
-                        DataTypes.createStructField("max_Blocks",structChild , false),                        
+                        DataTypes.createStructField("max_Dribbles_Past",structChild , false),
+                        DataTypes.createStructField("max_Blocks",structChild , false),
+                        DataTypes.createStructField("max_Blocks_Sh",structChild , false),
+                        DataTypes.createStructField("max_Blocks_Pass",structChild , false),                        
                         DataTypes.createStructField("max_Int",structChild , false),                        
                         DataTypes.createStructField("max_Tkl-Int",structChild , false),                        
                         DataTypes.createStructField("max_Clr",structChild , false),                        
@@ -242,7 +295,7 @@ public class ETLDataPlayerDefensive implements Serializable {
         );
         Dataset<Row> dfFinal = df.map(new MapFunction<Row, Row>() {
             @Override
-            public Row call(Row v1) {
+            public Row call(Row v1) throws Exception {
                 return RowFactory.create(v1.getString(0), v1.getString(1),
                         v1.getString(2), v1.getString(3), v1.getString(4),
                         v1.getString(5),
@@ -253,14 +306,18 @@ public class ETLDataPlayerDefensive implements Serializable {
                         RowFactory.create(v1.getSeq(15), v1.getInt(14)),
                         RowFactory.create(v1.getSeq(17), v1.getDouble(16)),
                         RowFactory.create(v1.getSeq(19), v1.getDouble(18)),
-                        RowFactory.create(v1.getSeq(21), v1.getInt(20)),
+                        RowFactory.create(v1.getSeq(21), v1.getDouble(20)),
                         RowFactory.create(v1.getSeq(23), v1.getInt(22)),
                         RowFactory.create(v1.getSeq(25), v1.getInt(24)),
                         RowFactory.create(v1.getSeq(27), v1.getInt(26)),
-                        RowFactory.create(v1.getSeq(29), v1.getInt(28)));
+                        RowFactory.create(v1.getSeq(29), v1.getInt(28)),
+                        RowFactory.create(v1.getSeq(31), v1.getInt(30)),
+                        RowFactory.create(v1.getSeq(33), v1.getInt(32)),
+                        RowFactory.create(v1.getSeq(35), v1.getInt(34)),
+                        RowFactory.create(v1.getSeq(37), v1.getInt(36)));
             }
-        }, RowEncoder.apply(struct));   
-        dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.PLAYER_DEFENSIVE +"/2023-02-08");
+        }, RowEncoder.apply(struct));
+        dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.PLAYER_DEFENSIVE + "/2023-02-08");
     }
 
     public static void main(String[] args){

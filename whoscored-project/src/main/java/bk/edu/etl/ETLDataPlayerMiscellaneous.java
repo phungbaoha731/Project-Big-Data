@@ -2,6 +2,7 @@ package bk.edu.etl;
 
 import bk.edu.conf.ConfigName;
 import bk.edu.utils.SparkUtil;
+import bk.edu.utils.TimeUtil;
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -10,9 +11,7 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
-import scala.Function1;
-
-import java.io.Serializable;
+import scala.Serializable;
 
 import static org.apache.spark.sql.functions.*;
 public class ETLDataPlayerMiscellaneous implements Serializable {
@@ -153,6 +152,33 @@ public class ETLDataPlayerMiscellaneous implements Serializable {
                 .groupBy("Match_ID", "max_Dribbles_Succ%").agg(collect_list("Player").as("Player_max_Dribbles_Succ%"))
                 .withColumnRenamed("Match_ID", "Match_ID2");
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
+
+
+        maxValueDf = df.select("Match_ID","Player", "Dribbles_Mis");
+        maxValueColumn = maxValueDf.groupBy("Match_ID")
+                .agg(max("Dribbles_Mis").as("max_Dribbles_Mis"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        maxValueGroupBy = maxValueDf.join(maxValueColumn,
+                        maxValueDf.col("Dribbles_Mis").equalTo(maxValueColumn.col("max_Dribbles_Mis"))
+                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
+                .drop("Dribbles_Succ%").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Dribbles_Mis").agg(collect_list("Player").as("Player_max_Dribbles_Mis"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
+
+
+
+        maxValueDf = df.select("Match_ID","Player", "Dribbles_Dis");
+        maxValueColumn = maxValueDf.groupBy("Match_ID")
+                .agg(max("Dribbles_Dis").as("max_Dribbles_Dis"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        maxValueGroupBy = maxValueDf.join(maxValueColumn,
+                        maxValueDf.col("Dribbles_Dis").equalTo(maxValueColumn.col("max_Dribbles_Dis"))
+                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
+                .drop("Dribbles_Dis").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Dribbles_Dis").agg(collect_list("Player").as("Player_max_Dribbles_Dis"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 //
 
         maxValueDf = df.select("Match_ID","Player", "Receiving_Rec");
@@ -216,13 +242,15 @@ public class ETLDataPlayerMiscellaneous implements Serializable {
                         DataTypes.createStructField("max_Dribbles_Succ",structChild , false),
                         DataTypes.createStructField("max_Dribbles_Att",structDoubleChild , false),
                         DataTypes.createStructField("max_Dribbles_Succ%",structDoubleChild , false),
+                        DataTypes.createStructField("max_Dribbles_Mis",structChild , false),
+                        DataTypes.createStructField("max_Dribbles_Dis",structChild , false),
                         DataTypes.createStructField("max_Receiving_Rec",structChild , false),
                         DataTypes.createStructField("max_Receiving_Prog",structChild , false),
                 }
         );
         Dataset<Row> dfFinal = df.map(new MapFunction<Row, Row>() {
             @Override
-            public Row call(Row v1) {
+            public Row call(Row v1) throws Exception {
                 return RowFactory.create(v1.getString(0), v1.getString(1),
                         v1.getString(2), v1.getString(3), v1.getString(4),
                         v1.getString(5),
@@ -237,7 +265,9 @@ public class ETLDataPlayerMiscellaneous implements Serializable {
                         RowFactory.create(v1.getSeq(23), v1.getDouble(22)),
                         RowFactory.create(v1.getSeq(25), v1.getDouble(24)),
                         RowFactory.create(v1.getSeq(27), v1.getInt(26)),
-                        RowFactory.create(v1.getSeq(29), v1.getInt(28)));
+                        RowFactory.create(v1.getSeq(29), v1.getInt(28)),
+                        RowFactory.create(v1.getSeq(31), v1.getInt(30)),
+                        RowFactory.create(v1.getSeq(33), v1.getInt(32)));
             }
         }, RowEncoder.apply(struct));
         dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.PLAYER_MISCELLANEOUS + "/2023-02-08");

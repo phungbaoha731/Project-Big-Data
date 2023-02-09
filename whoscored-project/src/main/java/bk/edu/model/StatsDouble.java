@@ -1,7 +1,13 @@
 package bk.edu.model;
 
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.List;
+@AllArgsConstructor
+@Getter
+@Setter
 public class StatsDouble {
     private List<String> players;
     private double score;

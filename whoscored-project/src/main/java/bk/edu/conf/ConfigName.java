@@ -32,4 +32,14 @@ public class ConfigName {
     public static final String ES_PASSWORD = "";
 
     public static final String GK_LOG_INDEX = "gk_overview";
+
+    public static final String PLAYER_DEFENSIVE_INDEX = "player_defensive";
+
+    public static final String RESULT_MATCHES_INDEX = "result_matches";
+
+    public static final String PLAYER_MISCELLANEOUS_INDEX = "player_miscellaneous";
+
+    public static final String TEAM_OVERVIEW_INDEX = "team_overview";
+
+    public static final String SHOT_INDEX = "shot";
 }

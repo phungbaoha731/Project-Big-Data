@@ -355,7 +355,7 @@ public class ETLDataGkOverview implements Serializable {
             }
         }, RowEncoder.apply(struct));
 
-        dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.GK_OVERVIEW + TimeUtil.getDate(ConfigName.FORMAT_TIME));
+        dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.GK_OVERVIEW + "/2023-02-08");
     }
 
     public static void main(String[] args){

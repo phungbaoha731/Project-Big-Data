@@ -48,6 +48,20 @@ public class ETLplayerPossession implements Serializable {
         finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
 
 
+
+                maxValueDf = df.select("Match_ID","Player", "Touches");
+        maxValueColumn = maxValueDf.groupBy("Match_ID")
+                .agg(max("Touches").as("max_Touches"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        maxValueGroupBy = maxValueDf.join(maxValueColumn,
+                        maxValueDf.col("Touches").equalTo(maxValueColumn.col("max_Touches"))
+                                .and(maxValueDf.col("Match_ID").equalTo(maxValueColumn.col("Match_ID2"))), "inner")
+                .drop("Touches").drop("Match_ID2")
+                .groupBy("Match_ID", "max_Touches").agg(collect_list("Player").as("Player_max_Touches"))
+                .withColumnRenamed("Match_ID", "Match_ID2");
+        finalDf = finalDf.join(maxValueGroupBy, finalDf.col("Match_ID").equalTo(maxValueGroupBy.col("Match_ID2")), "inner").drop("Match_ID2").distinct();
+
+
         maxValueDf = df.select("Match_ID","Player", "Touches_Def_Pen");
         maxValueColumn = maxValueDf.groupBy("Match_ID")
                 .agg(max("Touches_Def_Pen").as("max_Touches_Def_Pen"))

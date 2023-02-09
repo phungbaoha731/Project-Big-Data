@@ -18,12 +18,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PlayerDefensiveEs implements Serializable {
+public class PlayerDefensiveES implements Serializable {
     protected static ElasticStorage esStorage;
 
     protected static SparkUtil sparkUtil;
 
-    public PlayerDefensiveEs(){
+    public PlayerDefensiveES(){
         esStorage = new ElasticStorage();
         sparkUtil = new SparkUtil("who-scored", "save gk overview to es", "yarn");
     }
@@ -118,7 +118,7 @@ public class PlayerDefensiveEs implements Serializable {
     }
 
     public static void main(String[] args){
-        PlayerDefensiveEs playerDefensiveEs = new PlayerDefensiveEs();
+        PlayerDefensiveES playerDefensiveEs = new PlayerDefensiveES();
         playerDefensiveEs.writeToEs();
         esStorage.close();
     }

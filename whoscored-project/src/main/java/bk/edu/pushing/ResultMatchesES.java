@@ -7,7 +7,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.elasticsearch.action.index.IndexRequest;
 import scala.Serializable;
-import scala.runtime.StringAdd$;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -16,12 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ResultMatchesEs implements Serializable {
+public class ResultMatchesES implements Serializable {
     protected static ElasticStorage esStorage;
 
     protected static SparkUtil sparkUtil;
 
-    public ResultMatchesEs(){
+    public ResultMatchesES(){
         esStorage = new ElasticStorage();
         sparkUtil = new SparkUtil("who-scored", "save result matches to es", "yarn");
     }
@@ -88,7 +87,7 @@ public class ResultMatchesEs implements Serializable {
     }
 
     public static void main(String[] args){
-        ResultMatchesEs resultMatchesEs = new ResultMatchesEs();
+        ResultMatchesES resultMatchesEs = new ResultMatchesES();
         resultMatchesEs.writeToEs();
     }
 }

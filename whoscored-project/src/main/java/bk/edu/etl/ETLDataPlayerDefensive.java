@@ -259,7 +259,7 @@ public class ETLDataPlayerDefensive implements Serializable {
                         RowFactory.create(v1.getSeq(27), v1.getInt(26)),
                         RowFactory.create(v1.getSeq(29), v1.getInt(28)));
             }
-        }, RowEncoder.apply(struct));
+        }, RowEncoder.apply(struct));   
         dfFinal.write().mode("overwrite").parquet("/user/max" + ConfigName.PLAYER_DEFENSIVE +"/2023-02-08");
     }
 

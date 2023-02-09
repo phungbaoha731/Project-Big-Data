@@ -83,6 +83,7 @@ public class ShotES implements Serializable {
             map.put("Long_Balls", row.getInt(20));
 
         } catch (Exception e){
+            e.printStackTrace();
             return;
         }
 

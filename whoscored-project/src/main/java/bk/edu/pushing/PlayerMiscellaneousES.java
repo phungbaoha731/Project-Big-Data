@@ -49,22 +49,20 @@ public class PlayerMiscellaneousES {
             map.put("Pos", row.getInt(6));
             map.put("Age", Integer.parseInt(row.getString(7).split("-")[0]));
             map.put("Min", row.getInt(8));
-            map.put("TacklesTkl", row.getInt(9));
-            map.put("TacklesTklW", row.getInt(10));
-            map.put("TacklesDef3nd", row.getInt(11));
-            map.put("TacklesMid3nd", row.getInt(12));
-            map.put("TacklesAtt3nd", row.getInt(13));
-            map.put("DribblesTkl", row.getDouble(14));
-            map.put("DribblesAtt", row.getDouble(15));
-            map.put("DribblesTkl%", row.getDouble(16));
-            map.put("DribblesPast", row.getInt(17));
-            map.put("Blocks", row.getInt(18));
-            map.put("BlocksSh", row.getInt(19));
-            map.put("BlocksPass", row.getInt(20));
-            map.put("Int", row.getInt(21));
-            map.put("TklInt", row.getInt(22));
-            map.put("Clr", row.getInt(23));
-            map.put("Err", row.getInt(24));
+            map.put("Touches", row.getInt(9));
+            map.put("Touche_Def_Pen", row.getInt(10));
+            map.put("Touche_Def_3rd", row.getInt(11));
+            map.put("Touche_Mid_3rd", row.getInt(12));
+            map.put("Touche_Att_3rd", row.getInt(13));
+            map.put("Touche_Att_Pen", row.getInt(14));
+            map.put("Touche_Live", row.getInt(15));
+            map.put("Dribbles_Suc", row.getInt(16));
+            map.put("Dribbles_Att", row.getDouble(17));
+            map.put("Dribbles_SucP", row.getDouble(18));
+            map.put("Dribbles_Mis", row.getInt(19));
+            map.put("Dribbles_Dis", row.getInt(20));
+            map.put("Receiving_Rec", row.getInt(21));
+            map.put("Receiving_Prog", row.getInt(22));
 
         } catch (Exception e){
             return;

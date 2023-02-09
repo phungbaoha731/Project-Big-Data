@@ -60,15 +60,15 @@ public class ShotES implements Serializable {
 
             String[] saves = row.getString(7).split("\\?");
             if(saves[1].contains("%")){
-                map.put("Saves",Integer.parseInt(saves[1].replace("%", "")));
+                map.put("Saves",Integer.parseInt(saves[1].replace("%", "").trim()));
             } else {
-                map.put("Saves",Integer.parseInt(saves[2].replace("%", "")));
+                map.put("Saves",Integer.parseInt(saves[0].replace("%", "").trim()));
             }
-            String[] cards = row.getString(8).replace("{'Yellow Card': ", "")
-                    .replace( " 'Red Card': ", "")
+            String[] cards = row.getString(8).replace("{'Yellow Card':", "")
+                    .replace( "'Red Card':", "")
                     .replace("}", "").split(",");
-            map.put("YellowCards", Integer.parseInt(cards[0]));
-            map.put("RedCards", Integer.parseInt(cards[0]));
+            map.put("YellowCards", Integer.parseInt(cards[0].trim()));
+            map.put("RedCards", Integer.parseInt(cards[1].trim()));
             map.put("Fouls", row.getInt(9));
             map.put("Corners", row.getInt(10));
             map.put("Crosses", row.getInt(11));
